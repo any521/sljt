@@ -1,0 +1,27 @@
+root = true
+
+# 全仓库默认：UTF-8、LF、行尾不留空白
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# GDScript：强制 Tab 缩进（Godot 编辑器会读取本文件，避免保存时把 Tab 换成空格）
+[*.gd]
+indent_style = tab
+indent_size = 4
+
+# Godot 场景 / 资源文件同样用 Tab
+[*.{tscn,tres,godot,cfg}]
+indent_style = tab
+indent_size = 4
+
+# 文档与配置用两空格
+[*.{md,json,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# 二进制素材不要补行尾
+[*.{png,jpg,webp,ttf,otf,wav,ogg,mp3}]
+insert_final_newline = false

@@ -12,7 +12,7 @@ artifacts/
 dsh-capture/
 
 # ── 素材处理中间产物（由 tools/ 下脚本生成，可重新生成）──
-assets/art/ui/**/*_s8.png
+*_s8.png
 
 # ── 参考素材：第三方字体集合（含仅个人使用授权，不可再分发）──
 字体/
