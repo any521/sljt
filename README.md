@@ -181,7 +181,8 @@ $GODOT --path . --script res://tools/key_white_tray.gd
 
 ## 许可与第三方
 
-- **代码 / 文档**：见 [LICENSE](LICENSE)（⚠️ 许可证待项目所有人选定）
+- **代码 / 文档 / 美术素材**：[MIT](LICENSE) © 2026 any521
+  （第三方字体等来源与授权见下方链接；开发期参考资料未入库）
 - **第三方组件与素材来源**：见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 
 本项目使用的像素字体、引擎与图形库均为可再分发授权，具体见第三方声明。

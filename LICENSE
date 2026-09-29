@@ -1,27 +1,21 @@
-《阿卡姆号》许可证（待确定）
-================================
+MIT License
 
-⚠️ 本项目尚未选定开源许可证。**在选定并替换本文件之前，默认保留所有权利
-（All rights reserved），他人不得复制、修改或再分发。**
+Copyright (c) 2026 any521
 
-## 请项目所有人从下面常见方案中选择
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-**代码**
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-| 许可证 | 特点 |
-|---|---|
-| MIT | 最宽松，允许闭源商用，只需保留版权声明 |
-| Apache-2.0 | 与 MIT 类似，额外提供专利授权与贡献者条款 |
-| GPL-3.0 | 传染性 copyleft，衍生作品必须同样开源 |
-
-**美术 / 音频素材**（通常与代码分开授权）
-
-| 许可证 | 特点 |
-|---|---|
-| CC BY 4.0 | 允许商用，需署名 |
-| CC BY-NC 4.0 | 允许非商用，需署名 |
-| 保留所有权利 | 素材不开放，只开放代码 |
-
-## 选定后
-
-把本文件替换为对应许可证原文，并在 README 的「许可与第三方」一节更新说明。
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
