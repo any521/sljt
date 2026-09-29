@@ -1,0 +1,196 @@
+[gd_scene format=3 uid="uid://dvagmtmhd33md"]
+
+[ext_resource type="Script" uid="uid://bitfqh33obcxl" path="res://src/ui/main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://dadl03fcnu2v" path="res://src/ui/combat_view.gd" id="2_combat"]
+[ext_resource type="PackedScene" path="res://scenes/battle_world_2d.tscn" id="3_world"]
+[ext_resource type="PackedScene" path="res://scenes/widgets/battle_card.tscn" id="4_card"]
+[ext_resource type="PackedScene" path="res://scenes/ui/battle_hud.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/battle_cards_layer.tscn" id="6_cards"]
+[ext_resource type="PackedScene" path="res://scenes/ui/battle_overlays.tscn" id="7_overlays"]
+[ext_resource type="Theme" path="res://assets/themes/pixel_font_theme.tres" id="8_theme"]
+[ext_resource type="Texture2D" uid="uid://ljucncfswxih" path="res://assets/art/cards/card_frame_225.png" id="9_85g3d"]
+[ext_resource type="PackedScene" path="res://scenes/fx/targeting_arrow.tscn" id="10_arrow"]
+[ext_resource type="PackedScene" path="res://scenes/fx/selection_reticle.tscn" id="11_reticle"]
+[ext_resource type="PackedScene" path="res://scenes/widgets/thought_bubble.tscn" id="12_bubble"]
+[ext_resource type="PackedScene" path="res://scenes/ui/juice.tscn" id="13_juice"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hand_tray.tscn" id="14_tray"]
+
+[node name="Main" type="Node2D" unique_id=781703828]
+script = ExtResource("1_main")
+
+[node name="CombatView" type="Control" parent="." unique_id=389890534]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+theme = ExtResource("8_theme")
+script = ExtResource("2_combat")
+targeting_arrow_prefab = ExtResource("10_arrow")
+selection_reticle_prefab = ExtResource("11_reticle")
+thought_bubble_prefab = ExtResource("12_bubble")
+juice_prefab = ExtResource("13_juice")
+hand_tray_prefab = ExtResource("14_tray")
+
+[node name="World" type="Control" parent="CombatView" unique_id=798312809]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+
+[node name="BattleWorld2D" parent="CombatView/World" unique_id=969180873 instance=ExtResource("3_world")]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 1922.0
+offset_bottom = 1057.0
+
+[node name="Environment" parent="CombatView/World/BattleWorld2D" index="0"]
+anchors_preset = 0
+
+[node name="Atmosphere" parent="CombatView/World/BattleWorld2D/Environment/Lighting" index="2"]
+anchors_preset = 0
+
+[node name="Gameplay" parent="CombatView/World/BattleWorld2D" index="1"]
+anchors_preset = 0
+
+[node name="Actors" parent="CombatView/World/BattleWorld2D/Gameplay" index="0"]
+anchors_preset = 0
+
+[node name="SongMei" parent="CombatView/World/BattleWorld2D/Gameplay/Actors" index="0"]
+offset_left = 402.0
+offset_top = 458.0
+
+[node name="KinVariant1" parent="CombatView/World/BattleWorld2D/Gameplay/Actors" index="2"]
+offset_left = 1226.0
+offset_top = 435.0
+
+[node name="KinVariant2" parent="CombatView/World/BattleWorld2D/Gameplay/Actors" index="3"]
+offset_left = 1423.0
+offset_top = 466.0
+
+[node name="HUD" parent="CombatView" unique_id=804128377 instance=ExtResource("5_hud")]
+layout_mode = 0
+
+[node name="TopBar" parent="CombatView/HUD" index="1"]
+anchors_preset = 0
+
+[node name="PlayerStatus" parent="CombatView/HUD" index="2"]
+anchors_preset = 0
+
+[node name="CombatMeters" parent="CombatView/HUD" index="3"]
+anchors_preset = 0
+
+[node name="CompanionStatus" parent="CombatView/HUD" index="4"]
+anchors_preset = 0
+
+[node name="HandArea" parent="CombatView/HUD" index="5"]
+anchors_preset = 0
+
+[node name="PileControls" parent="CombatView/HUD" index="6"]
+anchors_preset = 0
+
+[node name="TurnControls" parent="CombatView/HUD" index="7"]
+anchors_preset = 0
+
+[node name="Hints" parent="CombatView/HUD" index="8"]
+anchors_preset = 0
+
+[node name="Cards" parent="CombatView" unique_id=803231347 instance=ExtResource("6_cards")]
+layout_mode = 0
+
+[node name="Hand" parent="CombatView/Cards" index="0"]
+anchors_preset = 0
+
+[node name="Flight" parent="CombatView/Cards" index="2"]
+anchors_preset = 0
+
+[node name="Overlays" parent="CombatView" unique_id=603783437 instance=ExtResource("7_overlays")]
+layout_mode = 0
+
+[node name="WorldTargets" parent="CombatView/Overlays" index="0"]
+anchors_preset = 0
+
+[node name="Effects" parent="CombatView/Overlays" index="1"]
+anchors_preset = 0
+
+[node name="Menus" parent="CombatView/Overlays" index="2"]
+anchors_preset = 0
+
+[node name="Results" parent="CombatView/Overlays" index="3"]
+anchors_preset = 0
+
+[node name="Debug" type="Control" parent="CombatView" unique_id=284612809]
+editor_description = "仅用于调试信息与性能显示。"
+z_index = 40
+anchors_preset = 0
+offset_left = -2.0
+offset_top = 21.0
+offset_right = 1918.0
+offset_bottom = 1076.0
+mouse_filter = 2
+
+[node name="CardTemplate" parent="CombatView" unique_id=1496533494 instance=ExtResource("4_card")]
+editor_description = "所有战斗卡牌共用的可编辑节点模板。双击场景图标打开 battle_card.tscn。"
+layout_mode = 0
+offset_left = 2040.0
+offset_top = 120.0
+offset_right = 2265.0
+offset_bottom = 417.0
+pivot_offset = Vector2(112.5, 148.5)
+
+[node name="Frame" parent="CombatView/CardTemplate" index="0" unique_id=480939106]
+offset_right = 225.0
+offset_bottom = 297.0
+texture = ExtResource("9_85g3d")
+script = null
+
+[node name="Art" parent="CombatView/CardTemplate" index="1" unique_id=1509116568]
+offset_left = 21.0
+offset_top = 45.0
+offset_right = 207.0
+offset_bottom = 177.0
+
+[node name="Cost" parent="CombatView/CardTemplate" index="2" unique_id=1204818193]
+offset_right = 44.0
+offset_bottom = 44.0
+theme_override_font_sizes/font_size = 22
+
+[node name="Name" parent="CombatView/CardTemplate" index="3" unique_id=282118685]
+offset_left = 46.0
+offset_top = 10.0
+offset_right = 198.0
+offset_bottom = 38.0
+theme_override_font_sizes/font_size = 17
+
+[node name="Index" parent="CombatView/CardTemplate" index="4" unique_id=1857692597]
+offset_left = 174.0
+offset_right = 198.0
+offset_bottom = 35.0
+theme_override_font_sizes/font_size = 11
+
+[node name="Type" parent="CombatView/CardTemplate" index="5" unique_id=262658934]
+theme_override_font_sizes/font_size = 11
+
+[node name="Description" parent="CombatView/CardTemplate" index="6" unique_id=2061663361]
+theme_override_font_sizes/font_size = 15
+
+[node name="Badge" parent="CombatView/CardTemplate" index="7" unique_id=791923880]
+offset_top = 276.0
+offset_bottom = 299.0
+theme_override_font_sizes/font_size = 11
+
+[node name="Dim" parent="CombatView/CardTemplate" index="8" unique_id=1794381060]
+offset_right = 225.0
+offset_bottom = 297.0
+
+[editable path="CombatView/World/BattleWorld2D"]
+[editable path="CombatView/World/BattleWorld2D/Environment/Lighting"]
+[editable path="CombatView/World/BattleWorld2D/Gameplay/Actors/SongMei"]
+[editable path="CombatView/World/BattleWorld2D/Gameplay/Actors/ShenMing"]
+[editable path="CombatView/World/BattleWorld2D/Gameplay/Actors/KinVariant1"]
+[editable path="CombatView/World/BattleWorld2D/Gameplay/Actors/KinVariant2"]
+[editable path="CombatView/HUD"]
+[editable path="CombatView/Cards"]
+[editable path="CombatView/Overlays"]
+[editable path="CombatView/CardTemplate"]

@@ -1,0 +1,112 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/ui/world/battle_actor_2d.gd" id="1_j1xnp"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/song_mei/battle_512x384.png" id="2_et3e7"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jquyq"]
+atlas = ExtResource("2_et3e7")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xwmr2"]
+atlas = ExtResource("2_et3e7")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fgq4e"]
+atlas = ExtResource("2_et3e7")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rcihd"]
+atlas = ExtResource("2_et3e7")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fgtc0"]
+atlas = ExtResource("2_et3e7")
+region = Rect2(0, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kgmi1"]
+atlas = ExtResource("2_et3e7")
+region = Rect2(128, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_78jx3"]
+atlas = ExtResource("2_et3e7")
+region = Rect2(256, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6acqv"]
+atlas = ExtResource("2_et3e7")
+region = Rect2(384, 128, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kvkoj"]
+atlas = ExtResource("2_et3e7")
+region = Rect2(0, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8uoye"]
+atlas = ExtResource("2_et3e7")
+region = Rect2(128, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lwuv3"]
+atlas = ExtResource("2_et3e7")
+region = Rect2(256, 256, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aw5v4"]
+atlas = ExtResource("2_et3e7")
+region = Rect2(384, 256, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_54hmd"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jquyq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xwmr2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fgq4e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rcihd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fgtc0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kgmi1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_78jx3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6acqv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kvkoj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8uoye")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lwuv3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aw5v4")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 8.0
+}]
+
+[node name="SongMei" type="Control" unique_id=1487593769]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 134.85
+offset_bottom = 218.55
+mouse_filter = 2
+script = ExtResource("1_j1xnp")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=104854577]
+texture_filter = 1
+position = Vector2(88.35, 93)
+scale = Vector2(4.65, 4.65)
+sprite_frames = SubResource("SpriteFrames_54hmd")
+animation = &"idle"
+autoplay = "idle"

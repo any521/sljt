@@ -1,0 +1,22 @@
+[
+  {
+    "Path": "D:\\Huailxgame\\src\\core\\card_instance.gd",
+    "Hash": "DF38BD440CBF3A1C6223A35560557DD879DE87DD1E1FB9DABBFCEE74E90055AD"
+  },
+  {
+    "Path": "D:\\Huailxgame\\src\\core\\combat_manager.gd",
+    "Hash": "73BA840689F4925569AA8451322FC537218C9346B47CD2BF132179A7EE58EE5F"
+  },
+  {
+    "Path": "D:\\Huailxgame\\src\\core\\damage_pipeline.gd",
+    "Hash": "53CB873132815FEE426752329DF9C325B90DE5E46B3CC9E850D8BDB185C0F74F"
+  },
+  {
+    "Path": "D:\\Huailxgame\\src\\core\\echo_system.gd",
+    "Hash": "700CCEF4F31AEAC24E7E80DA46B2105AE3636D7D19069A33CEE34AF9C3D5E8B0"
+  },
+  {
+    "Path": "D:\\Huailxgame\\src\\core\\isolation_system.gd",
+    "Hash": "79CD6E9068FF90EF45EF7FAC9C04A78238EA93F03F842D5D020B7304B315BC75"
+  }
+]

@@ -1,0 +1,101 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/widgets/crew_status_panel.tscn" id="1_crew"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/shen_mingyan/portrait_shen_ming.png" id="2_shen"]
+[ext_resource type="Texture2D" path="res://assets/art/characters/song_mei/portrait_512.png" id="3_song"]
+
+[sub_resource type="AtlasTexture" id="Atlas_shen_portrait"]
+atlas = ExtResource("2_shen")
+region = Rect2(250, 100, 500, 500)
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+z_index = 10
+editor_description = "战斗常驻界面。各区域保持独立，运行时控件会挂到对应分组。"
+
+[node name="BackdropShade" type="ColorRect" parent="."]
+layout_mode = 0
+offset_top = 790.0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+color = Color(0.015, 0.025, 0.038, 0.54)
+
+[node name="TopBar" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+editor_description = "舰船名称、回合、记录、规则和设置。"
+
+[node name="PlayerStatus" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+editor_description = "主角头像、生命、格挡、状态与能量。"
+
+[node name="ShenMingStatus" parent="PlayerStatus" instance=ExtResource("1_crew")]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 376.0
+offset_bottom = 168.0
+crew_name = "沈明"
+portrait_texture = SubResource("Atlas_shen_portrait")
+
+[node name="CombatMeters" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+editor_description = "回响、隔离、敌人意图与敌人血条。"
+
+[node name="CompanionStatus" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+editor_description = "宋梅等队友的状态摘要。"
+
+[node name="SongMeiStatus" parent="CompanionStatus" instance=ExtResource("1_crew")]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 176.0
+offset_right = 376.0
+offset_bottom = 266.0
+crew_name = "宋梅"
+portrait_texture = ExtResource("3_song")
+show_block = false
+
+[node name="HandArea" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+editor_description = "卡牌托盘等手牌区背景；卡牌本体在 Cards 场景。"
+
+[node name="PileControls" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+editor_description = "牌库与弃牌堆入口。"
+
+[node name="TurnControls" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+editor_description = "结束回合按钮及快捷键提示。"
+
+[node name="Hints" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+editor_description = "操作提示、锁定目标与伤害预测。"

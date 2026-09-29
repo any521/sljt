@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+[node name="Cards" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+z_index = 20
+editor_description = "手牌、拖拽轨迹和卡牌飞行动画。"
+
+[node name="Hand" type="Control" parent="."]
+layout_mode = 0
+offset_left = 418.0
+offset_top = 758.0
+offset_right = 1502.0
+offset_bottom = 1024.0
+mouse_filter = 2
+editor_description = "运行时 battle_card.tscn 实例的父节点。"
+
+[node name="Trajectory" type="Line2D" parent="."]
+z_index = 99
+width = 2.0
+default_color = Color(0.419608, 0.780392, 1, 1)
+
+[node name="Flight" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+z_index = 100
+editor_description = "抽牌、打出和弃牌时临时承载移动中的卡牌。"

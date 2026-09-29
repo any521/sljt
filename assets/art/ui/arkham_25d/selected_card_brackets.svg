@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="340" viewBox="0 0 240 340" shape-rendering="geometricPrecision">
+<defs></defs>
+<path d="M 5 55 V 20 L 20 5 H 62 M 178 5 H 220 L 235 20 V 55 M 235 285 V 320 L 220 335 H 178 M 62 335 H 20 L 5 320 V 285" fill="none" stroke="#6bc7ff" stroke-width="9"/>
+<path d="M 21 68 V 34 L 34 21 H 69 M 171 21 H 206 L 219 34 V 68 M 219 272 V 306 L 206 319 H 171 M 69 319 H 34 L 21 306 V 272" fill="none" stroke="#b2e8ff" stroke-width="3" opacity=".75"/>
+<path d="M 92 13 H 148 M 92 327 H 148" stroke="#e8a830" stroke-width="4"/>
+</svg>

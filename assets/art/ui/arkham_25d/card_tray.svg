@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="250" viewBox="0 0 1100 250" shape-rendering="geometricPrecision">
+<defs></defs>
+<path d="M 42 34 L 80 4 H 1020 L 1058 34 L 1094 214 L 1068 246 H 32 L 6 214 Z" fill="#070b11" fill-opacity=".91" stroke="#1e3a52" stroke-width="4"/>
+<path d="M 77 22 H 1023" stroke="#3a82b2" stroke-width="3"/>
+<path d="M 31 201 Q 550 253 1069 201" fill="none" stroke="#6bc7ff" stroke-width="3" opacity=".5"/>
+<path d="M 52 216 Q 550 259 1048 216" fill="none" stroke="#0a0e14" stroke-width="18"/>
+<path d="M 50 44 L 27 66 V 175" fill="none" stroke="#3a82b2" stroke-width="2"/>
+<path d="M 1050 44 L 1073 66 V 175" fill="none" stroke="#3a82b2" stroke-width="2"/>
+<path d="M 237 214 Q 280 224 323 214" fill="none" stroke="#8592a0" stroke-width="3" opacity=".5"/>
+<path d="M 372 214 Q 415 224 458 214" fill="none" stroke="#8592a0" stroke-width="3" opacity=".5"/>
+<path d="M 507 214 Q 550 224 593 214" fill="none" stroke="#8592a0" stroke-width="3" opacity=".5"/>
+<path d="M 642 214 Q 685 224 728 214" fill="none" stroke="#8592a0" stroke-width="3" opacity=".5"/>
+<path d="M 777 214 Q 820 224 863 214" fill="none" stroke="#8592a0" stroke-width="3" opacity=".5"/>
+</svg>

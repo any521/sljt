@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="310" height="88" viewBox="0 0 310 88" shape-rendering="geometricPrecision">
+<defs></defs>
+<path d="M 22 6 H 298 L 315 23 V 77 L 298 94 H 22 L 5 77 V 23 Z" fill="#020407" opacity=".72"/>
+<path d="M 17 0 H 293 L 310 17 V 71 L 293 88 H 17 L 0 71 V 17 Z" fill="#111620" fill-opacity="0.92" stroke="#2b536e" stroke-width="3"/>
+<path d="M 27 6 H 269" stroke="#3a82b2" stroke-width="3" opacity=".92"/>
+<path d="M 8 67 V 23" stroke="#3a82b2" stroke-width="2" opacity=".65"/>
+<polygon points="280,80 300,60 300,76 296,80" fill="#3a82b2" opacity=".65"/>
+<circle cx="19" cy="19" r="4" fill="#05080d" stroke="#8592a0" stroke-width="2"/>
+<circle cx="50" cy="44" r="27" fill="#08131d" stroke="#3a82b2" stroke-width="3"/>
+<path d="M 35 61 C 37 48 42 44 50 44 C 59 44 65 49 66 62" fill="#1e3a52"/>
+<circle cx="50" cy="35" r="10" fill="#8592a0"/>
+<path d="M 91 34 H 281" stroke="#070a0f" stroke-width="17"/>
+<path d="M 91 34 H 248" stroke="#3a82b2" stroke-width="9"/>
+<path d="M 92 61 H 226" stroke="#8592a0" stroke-width="3" stroke-dasharray="10 6" opacity=".58"/>
+</svg>

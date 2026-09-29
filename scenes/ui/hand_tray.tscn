@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/ui/widgets/hand_tray.gd" id="1_tray"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/tray/edge_h_cut.png" id="2_edge"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/tray/edge_v_cut.png" id="3_edgev"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/tray/corners_cut.png" id="4_corners"]
+
+[node name="HandTray" type="Control"]
+offset_right = 1400.0
+offset_bottom = 252.0
+mouse_filter = 2
+texture_filter = 1
+script = ExtResource("1_tray")
+interior_color = Color(0.235, 0.549, 0.941, 0.34)
+interior_deep = Color(0.129, 0.337, 0.694, 0.36)
+edge_texture = ExtResource("2_edge")
+edge_v_texture = ExtResource("3_edgev")
+corners_texture = ExtResource("4_corners")
+asset_scale = 0.85
+corner_scale_mult = 0.7
+edge_overlap = 0.5
+edge_band_center_ratio = 0.47

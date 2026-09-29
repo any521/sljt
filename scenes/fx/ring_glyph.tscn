@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/ui/effects/ring_glyph.gd" id="1_ring"]
+
+[node name="RingGlyph" type="Control"]
+mouse_filter = 2
+script = ExtResource("1_ring")

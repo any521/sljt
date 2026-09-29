@@ -1,0 +1,35 @@
+Create a polished 16:9 production UI concept frame for a premium 2.5D sci-fi Lovecraft deckbuilding game called Arkham Ship.
+
+SCENE AND CAMERA
+- A real three-dimensional starship engine bay / observation deck, not a flat painted backdrop.
+- Camera is nearly frontal with a restrained elevated oblique angle: about 12 degrees downward pitch and slight three-quarter perspective, like a small 2.5D tactics stage.
+- Visible floor plane, wall depth, catwalk rails, recessed machinery, pipes, emergency bulkhead, hanging cables, volumetric dust, real cast shadows and pools of light.
+- Cold cyan engineering light from upper left, weak amber practical lights, deep navy shadows, one subtle magenta organic contamination far in the background.
+- Preserve a large unobstructed central combat stage. The scene must read clearly even without UI.
+- Place two SMALL full-body human figures on the left side of the ground plane: male player in front-left and female companion several steps behind-left, both about 14 percent of canvas height. They belong inside the world, with feet planted and cast shadows.
+- Place two small eldritch enemies at mid-right, about 17 percent of canvas height, grounded in the same world. No huge portraits or cutout stickers.
+
+UI COMPOSITION
+- Industrial human-built HUD only around the screen edges, leaving the 3D stage open.
+- Top edge: a thin low-profile encounter status rail, small round indicator lamps and restrained segmented meters. No thick header bar.
+- Bottom-left: compact player vital instrument with a small portrait aperture, horizontal health strip, armor pip, and energy cells. Maximum 320 by 120 pixels relative to a 1920 by 1080 frame.
+- Bottom center: a recessed card tray integrated into the cockpit edge. Five compact cards fan gently upward, each around 140 by 200 pixels, not covering characters. Selected card rises a little and gains cyan edge light.
+- Bottom-right: a strong hexagonal amber END TURN control and a compact draw/discard counter.
+- Above each enemy: tiny world-anchored health strip and readable intent icon, floating close to the creature.
+- Near the upper center: a compact six-step combo / echo instrument and a narrow isolation warning bar. They feel like ship diagnostics, not a website dashboard.
+- Use layered dark steel frames, beveled corners, screws, etched tick marks, cyan emissive lines, amber interaction light, red danger flashes, subtle wear and scratches.
+- Panels are mostly transparent smoky glass so the 3D environment remains visible.
+- Strong hierarchy, generous negative space, no sidebars, no large opaque rectangles, no oversized characters.
+
+ART DIRECTION
+- Premium game UI presentation comparable in finish to Hades and Slay the Spire, while visually original.
+- Palette: near black #0A0E14, steel #111620 and #1E3A52, cyan #6BC7FF and #B2E8FF, amber #E8A830 and #FFDC82, danger red #D64440, mutation magenta #C7479E.
+- Weathered industrial science-fiction, precise hard-surface geometry, one consistent upper-left key light, subtle film grain.
+- The UI represents human order; eldritch organic shapes stay inside the world, never in the HUD frames.
+- Highly legible silhouette and spacing at 1920x1080.
+
+TEXT
+- Do not render any words, letters, numbers, logos, or watermarks. Leave clean label zones for code-rendered Chinese typography later.
+
+OUTPUT
+- One complete in-game interface mockup, straight-on 16:9 screenshot composition, polished concept art, high detail, crisp game UI, no presentation board and no annotations.

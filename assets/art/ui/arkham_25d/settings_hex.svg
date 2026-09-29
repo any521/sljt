@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" shape-rendering="geometricPrecision">
+<defs></defs>
+<polygon points="75,40 57.5,70.31 22.5,70.31 5,40 22.5,9.69 57.5,9.69" fill="#091019" stroke="#3a82b2" stroke-width="3"/>
+<circle cx="40" cy="40" r="13" fill="none" stroke="#b2e8ff" stroke-width="5" stroke-dasharray="8 4"/>
+<circle cx="40" cy="40" r="5" fill="#6bc7ff"/>
+</svg>

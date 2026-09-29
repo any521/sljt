@@ -1,0 +1,38 @@
+Create a production-ready sprite sheet of separate 2D game HUD components for a premium sci-fi Lovecraft deckbuilder. Every object must be isolated with generous spacing and must not touch any other object.
+
+BACKGROUND
+- Perfectly flat, uniform, solid #00ff00 chroma-key background covering the entire canvas.
+- No gradient, texture, vignette, noise, floor, horizon, shadow, reflection, glow spill, or color variation on the green background.
+- Do not use green anywhere in the UI objects.
+
+COMPONENTS, ARRANGED IN A CLEAN 4 BY 4 GRID
+1. Long thin encounter status rail with beveled steel ends and three tiny circular lamps.
+2. Compact player vital frame with small portrait aperture, long health channel, armor socket, and three energy-cell sockets.
+3. Compact enemy health strip with a small intent-icon socket above it.
+4. Hexagonal amber end-turn button frame with an empty dark center.
+5. Six-step combo / echo meter made of six separate angular capsules on one backing rail.
+6. Ten-notch isolation warning meter with a guarded red threshold zone.
+7. Wide recessed card-hand tray with five subtle card registration notches.
+8. Small draw-pile counter frame shaped like stacked steel cards.
+9. Small discard-pile counter frame with a diagonal hazard slash.
+10. Tooltip panel frame with a narrow title slot, large empty body, and one amber key-hint socket.
+11. Set of four separate enemy intent medallions: attack blade, shield, debuff spiral, unknown eye.
+12. Set of five separate condition pips: bleed drop, fracture crack, armor plate, corrosion flask, chain-link mark.
+13. Selected-card corner brackets, four independent corners arranged together.
+14. Small pause/settings hex button frame.
+15. Decorative kit: eight separate bolts, two short dividers, two warning chevrons.
+16. Small companion status frame with a circular portrait aperture and one narrow health channel.
+
+STYLE
+- Human-built industrial starship instrumentation; dark layered steel, hard angular silhouettes, clipped corners, restrained bevels, exposed fasteners, etched ticks, minute wear and scratches.
+- Palette only: near black #0A0E14, steel #111620 and #1E3A52, desaturated blue #3A82B2, cyan emissive #6BC7FF and #B2E8FF, amber #E8A830 and #FFDC82, danger red #D64440, neutral #E0E8F0 and #8592A0.
+- One consistent upper-left light, crisp readable edges, controlled emissive accents, premium commercial game UI quality.
+- Mostly opaque hard-surface frames with truly empty dark centers for labels. No translucent glass, smoke, particles, bloom clouds, reflections, or soft cast shadows because the objects must key cleanly.
+- Front orthographic view, no perspective distortion.
+- Original design language; do not copy an existing game's UI.
+
+TEXT
+- Absolutely no words, letters, numbers, logos, watermarks, fake glyphs, or illegible pseudo-text anywhere.
+
+OUTPUT
+- One clean sprite atlas source image, centered objects, large padding between cells, sharp boundaries, high detail, flat chroma background.

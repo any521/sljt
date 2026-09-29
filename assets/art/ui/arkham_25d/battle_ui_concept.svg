@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" shape-rendering="geometricPrecision">
+<defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#07131c"/><stop offset=".55" stop-color="#071019"/><stop offset="1" stop-color="#020407"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#142330"/><stop offset="1" stop-color="#070a0f"/></linearGradient>
+    <linearGradient id="light" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b2e8ff" stop-opacity=".22"/><stop offset="1" stop-color="#6bc7ff" stop-opacity="0"/></linearGradient>
+    <radialGradient id="amberGlow"><stop stop-color="#ffdc82" stop-opacity=".32"/><stop offset="1" stop-color="#e8a830" stop-opacity="0"/></radialGradient>
+    <radialGradient id="magentaGlow"><stop stop-color="#c7479e" stop-opacity=".28"/><stop offset="1" stop-color="#c7479e" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#2b536e" stroke-width="1" opacity=".18"/></pattern>
+    </defs>
+<rect width="1920" height="1080" fill="url(#bg)"/>
+<rect y="0" width="1920" height="610" fill="url(#grid)" opacity=".5"/>
+<path d="M 0 0 H 1920 V 590 L 1700 520 H 220 L 0 590 Z" fill="#081019"/>
+<path d="M 225 92 H 1695 L 1765 167 V 510 L 1668 585 H 252 L 155 510 V 167 Z" fill="#0c151f" stroke="#25465d" stroke-width="8"/>
+<path d="M 314 145 H 1606 L 1665 208 V 474 L 1590 530 H 330 L 255 474 V 208 Z" fill="#071019" stroke="#1e3a52" stroke-width="5"/>
+<path d="M 355 177 H 1570 V 496 H 355 Z" fill="#03090f"/>
+<path d="M 375 196 H 1550 V 470 H 375 Z" fill="#071521" stroke="#3a82b2" stroke-width="3"/>
+<path d="M 405 216 H 1518 V 452 H 405 Z" fill="#02080e"/>
+<circle cx="468" cy="248" r="2" fill="#b2e8ff" opacity="0.35"/>
+<circle cx="527" cy="321" r="1" fill="#b2e8ff" opacity="0.53"/>
+<circle cx="703" cy="265" r="2" fill="#b2e8ff" opacity="0.71"/>
+<circle cx="839" cy="387" r="1" fill="#b2e8ff" opacity="0.35"/>
+<circle cx="1014" cy="239" r="1" fill="#b2e8ff" opacity="0.53"/>
+<circle cx="1177" cy="330" r="2" fill="#b2e8ff" opacity="0.71"/>
+<circle cx="1334" cy="257" r="1" fill="#b2e8ff" opacity="0.35"/>
+<circle cx="1451" cy="402" r="2" fill="#b2e8ff" opacity="0.53"/>
+<circle cx="930" cy="299" r="1" fill="#b2e8ff" opacity="0.71"/>
+<path d="M 1315 246 C 1378 232 1434 281 1422 340 C 1413 389 1357 406 1328 367 C 1298 328 1339 303 1364 325" fill="none" stroke="#7f2a69" stroke-width="16" opacity=".34"/>
+<ellipse cx="1380" cy="330" rx="178" ry="138" fill="url(#magentaGlow)"/>
+<path d="M 0 527 L 282 507 L 391 590 H 1529 L 1642 507 L 1920 532 V 1080 H 0 Z" fill="url(#floor)"/>
+<path d="M 365 570 L 1555 570 L 1846 1080 H 74 Z" fill="#0b121a"/>
+<path d="M 365 570 L 1555 570 L 1846 1080 H 74 Z" fill="url(#grid)" opacity=".65"/>
+<path d="M 960 570 V 1080 M 690 570 L 520 1080 M 1230 570 L 1400 1080" stroke="#30566c" stroke-width="3" opacity=".45"/>
+<path d="M 126 706 H 1794 M 76 844 H 1844" stroke="#31566d" stroke-width="4" opacity=".35"/>
+<path d="M 0 658 L 265 572 L 383 636 L 189 781 L 0 823 Z" fill="#0b131c" stroke="#1e3a52" stroke-width="4"/>
+<path d="M 1920 658 L 1655 572 L 1537 636 L 1731 781 L 1920 823 Z" fill="#0b131c" stroke="#1e3a52" stroke-width="4"/>
+<path d="M 0 39 L 401 580 L 574 580 L 227 0 Z" fill="url(#light)"/>
+<ellipse cx="237" cy="596" rx="198" ry="160" fill="url(#amberGlow)" opacity=".65"/>
+<rect x="60" y="163" width="80" height="400" fill="#0b121a" stroke="#2b536e" stroke-width="5"/>
+<path d="M 78 190 H 122 V 525 H 78 Z" fill="#121e28"/>
+<path d="M 86 218 H 114 M 86 258 H 114 M 86 480 H 114" stroke="#e8a830" stroke-width="6" opacity=".55"/>
+<rect x="1780" y="163" width="80" height="400" fill="#0b121a" stroke="#2b536e" stroke-width="5"/>
+<path d="M 1798 190 H 1842 V 525 H 1798 Z" fill="#121e28"/>
+<path d="M 1806 218 H 1834 M 1806 258 H 1834 M 1806 480 H 1834" stroke="#e8a830" stroke-width="6" opacity=".55"/>
+<path d="M 118 617 H 351 M 1569 617 H 1802" stroke="#31546b" stroke-width="13"/>
+<path d="M 150 615 V 730 M 307 615 V 682 M 1613 615 V 685 M 1766 615 V 731" stroke="#31546b" stroke-width="10"/>
+<path d="M 149 622 H 353 M 1567 622 H 1768" stroke="#6bc7ff" stroke-width="2" opacity=".38"/>
+<ellipse cx="474" cy="724" rx="28.7" ry="7.38" fill="#020305" opacity=".7"/>
+<circle cx="474" cy="595.0" r="13.12" fill="#b7c3c9"/>
+<path d="M 459.24 590.9000000000001 Q 474 572.86 489.58 590.9000000000001 V 597.46 H 459.24 Z" fill="#11161e"/>
+<path d="M 454.32 614.6800000000001 L 446.12 666.34 L 461.7 676.1800000000001 L 467.44 636.0 L 482.2 636.0 L 488.76 676.1800000000001 L 502.7 665.52 L 493.68 615.5 Z" fill="#20394a" stroke="#456177" stroke-width="1.64"/>
+<path d="M 456.78 617.96 H 491.22" stroke="#6bc7ff" stroke-width="3.28"/>
+<path d="M 460.88 674.5400000000001 L 459.24 718 M 487.12 674.5400000000001 L 488.76 718" stroke="#111822" stroke-width="12.299999999999999"/>
+<path d="M 452.68 718 H 467.44 M 481.38 718 H 496.96" stroke="#2b3e4d" stroke-width="6.56"/>
+<ellipse cx="328" cy="672" rx="22.75" ry="5.8500000000000005" fill="#020305" opacity=".7"/>
+<circle cx="328" cy="568.5" r="10.4" fill="#b7c3c9"/>
+<path d="M 316.3 565.25 Q 328 550.95 340.35 565.25 V 570.45 H 316.3 Z" fill="#11161e"/>
+<path d="M 312.4 584.1 L 305.9 625.0500000000001 L 318.25 632.85 L 322.8 601.0 L 334.5 601.0 L 339.7 632.85 L 350.75 624.4000000000001 L 343.6 584.75 Z" fill="#253347" stroke="#456177" stroke-width="1.3"/>
+<path d="M 314.35 586.7 H 341.65" stroke="#e8a830" stroke-width="2.6"/>
+<path d="M 317.6 631.5500000000001 L 316.3 666 M 338.4 631.5500000000001 L 339.7 666" stroke="#111822" stroke-width="9.75"/>
+<path d="M 311.1 666 H 322.8 M 333.85 666 H 346.2" stroke="#2b3e4d" stroke-width="5.2"/>
+<path d="M 316.3 564.6 Q 309.8 586.0500000000001 321.5 589.3000000000001 M 339.7 564.6 Q 346.2 585.4000000000001 334.5 589.3000000000001" fill="none" stroke="#251d24" stroke-width="5.2"/>
+<ellipse cx="1320" cy="732" rx="46.44" ry="11.18" fill="#020305" opacity=".72"/>
+<path d="M 1283.88 663.8 Q 1299.3600000000001 699.92 1277.0 724" fill="none" stroke="#49203f" stroke-width="10.32" stroke-linecap="round"/>
+<path d="M 1301.94 663.8 Q 1284.74 699.92 1295.06 724" fill="none" stroke="#49203f" stroke-width="10.32" stroke-linecap="round"/>
+<path d="M 1320.0 663.8 Q 1338.92 699.92 1313.12 724" fill="none" stroke="#49203f" stroke-width="10.32" stroke-linecap="round"/>
+<path d="M 1338.06 663.8 Q 1317.4199999999998 699.92 1331.1799999999998 724" fill="none" stroke="#49203f" stroke-width="10.32" stroke-linecap="round"/>
+<path d="M 1356.12 663.8 Q 1378.4799999999998 699.92 1349.2399999999998 724" fill="none" stroke="#49203f" stroke-width="10.32" stroke-linecap="round"/>
+<path d="M 1283.02 670.68 Q 1275.28 612.2 1320 588.12 Q 1367.3 612.2 1355.26 673.26 Q 1320 695.62 1283.02 670.68 Z" fill="#49203f" stroke="#7b3a68" stroke-width="3.44"/>
+<ellipse cx="1320" cy="626.82" rx="23.22" ry="17.2" fill="#09080d" stroke="#c7479e" stroke-width="3.44"/>
+<circle cx="1320" cy="626.82" r="6.88" fill="#c7479e"/>
+<path d="M 1288.18 650.9 Q 1252.92 664.66 1242.6 691.32 M 1351.82 650.9 Q 1385.36 665.52 1399.12 693.04" fill="none" stroke="#49203f" stroke-width="11.18" stroke-linecap="round"/>
+<ellipse cx="1558" cy="686" rx="34.56" ry="8.32" fill="#020305" opacity=".72"/>
+<path d="M 1531.12 633.2 Q 1542.6399999999999 660.08 1526.0 678" fill="none" stroke="#243f44" stroke-width="7.68" stroke-linecap="round"/>
+<path d="M 1544.56 633.2 Q 1531.76 660.08 1539.44 678" fill="none" stroke="#243f44" stroke-width="7.68" stroke-linecap="round"/>
+<path d="M 1558.0 633.2 Q 1572.08 660.08 1552.88 678" fill="none" stroke="#243f44" stroke-width="7.68" stroke-linecap="round"/>
+<path d="M 1571.44 633.2 Q 1556.0800000000002 660.08 1566.3200000000002 678" fill="none" stroke="#243f44" stroke-width="7.68" stroke-linecap="round"/>
+<path d="M 1584.88 633.2 Q 1601.5200000000002 660.08 1579.7600000000002 678" fill="none" stroke="#243f44" stroke-width="7.68" stroke-linecap="round"/>
+<path d="M 1530.48 638.32 Q 1524.72 594.8 1558 576.88 Q 1593.2 594.8 1584.24 640.24 Q 1558 656.88 1530.48 638.32 Z" fill="#243f44" stroke="#7b3a68" stroke-width="2.56"/>
+<ellipse cx="1558" cy="605.68" rx="17.28" ry="12.8" fill="#09080d" stroke="#6bc7ff" stroke-width="2.56"/>
+<circle cx="1558" cy="605.68" r="5.12" fill="#6bc7ff"/>
+<path d="M 1534.32 623.6 Q 1508.08 633.84 1500.4 653.68 M 1581.68 623.6 Q 1606.64 634.48 1616.88 654.96" fill="none" stroke="#243f44" stroke-width="8.32" stroke-linecap="round"/>
+<path d="M 1177 508 H 1382 L 1394 518 L 1382 536 H 1177 L 1165 518 Z" fill="#080c12" fill-opacity=".92" stroke="#2b536e" stroke-width="2"/>
+<path d="M 1187 522 H 1358" stroke="#d64440" stroke-width="7"/>
+<circle cx="1279.5" cy="502" r="16" fill="#0a0e14" stroke="#d64440" stroke-width="3"/>
+<path d="M 1274.5 494 L 1286.5 506 M 1281.5 491 L 1271.5 509" stroke="#d64440" stroke-width="3"/>
+<path d="M 1460 498 H 1632 L 1644 508 L 1632 526 H 1460 L 1448 508 Z" fill="#080c12" fill-opacity=".92" stroke="#2b536e" stroke-width="2"/>
+<path d="M 1470 512 H 1608" stroke="#d64440" stroke-width="7"/>
+<circle cx="1546.0" cy="492" r="16" fill="#0a0e14" stroke="#e8a830" stroke-width="3"/>
+<path d="M 1541.0 484 L 1553.0 496 M 1548.0 481 L 1538.0 499" stroke="#e8a830" stroke-width="3"/>
+<path d="M 40 30 H 504 L 527 53 H 1393 L 1416 30 H 1880" fill="none" stroke="#1e3a52" stroke-width="24" opacity=".92"/>
+<path d="M 42 24 H 510 L 532 46 H 1388 L 1410 24 H 1878" fill="none" stroke="#3a82b2" stroke-width="3"/>
+<circle cx="82" cy="30" r="7" fill="#6bc7ff"/><circle cx="108" cy="30" r="7" fill="#e8a830"/><circle cx="134" cy="30" r="7" fill="#d64440" opacity=".55"/>
+<text x="170" y="37" fill="#8592a0" font-size="17" font-weight="600" letter-spacing="2.4" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">ARKHAM // 战斗甲板 07</text>
+<text x="1750" y="37" fill="#e0e8f0" font-size="17" font-weight="600" letter-spacing="2.0" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">回合 03</text>
+<path d="M 697 74 H 1233 L 1251 92 V 139 L 1233 157 H 697 L 679 139 V 92 Z" fill="#020407" opacity=".72"/>
+<path d="M 692 68 H 1228 L 1246 86 V 133 L 1228 151 H 692 L 674 133 V 86 Z" fill="#111620" fill-opacity="0.8" stroke="#2b536e" stroke-width="3"/>
+<path d="M 702 74 H 1204" stroke="#6bc7ff" stroke-width="3" opacity=".92"/>
+<path d="M 682 129 V 92" stroke="#3a82b2" stroke-width="2" opacity=".65"/>
+<polygon points="1216,143 1236,123 1236,139 1232,143" fill="#6bc7ff" opacity=".65"/>
+<circle cx="693" cy="87" r="4" fill="#05080d" stroke="#8592a0" stroke-width="2"/>
+<text x="705" y="101" fill="#8592a0" font-size="17" font-weight="600" letter-spacing="2.5" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">回响链</text>
+<path d="M 810 87 H 847 L 842 105 H 805 Z" fill="#6bc7ff" opacity=".96" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 867 87 H 904 L 899 105 H 862 Z" fill="#6bc7ff" opacity=".96" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 924 87 H 961 L 956 105 H 919 Z" fill="#6bc7ff" opacity=".96" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 981 87 H 1018 L 1013 105 H 976 Z" fill="#6bc7ff" opacity=".96" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 1038 87 H 1075 L 1070 105 H 1033 Z" fill="#1e3a52" opacity=".55" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 1095 87 H 1132 L 1127 105 H 1090 Z" fill="#1e3a52" opacity=".55" stroke="#3a82b2" stroke-width="1"/>
+<text x="706" y="133" fill="#8592a0" font-size="15" font-weight="600" letter-spacing="2.5" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">隔离</text>
+<rect x="805" y="119" width="31" height="9" fill="#6bc7ff" opacity="0.85"/>
+<rect x="845" y="119" width="31" height="9" fill="#6bc7ff" opacity="0.85"/>
+<rect x="885" y="119" width="31" height="9" fill="#6bc7ff" opacity="0.85"/>
+<rect x="925" y="119" width="31" height="9" fill="#6bc7ff" opacity="0.85"/>
+<rect x="965" y="119" width="31" height="9" fill="#6bc7ff" opacity="0.85"/>
+<rect x="1005" y="119" width="31" height="9" fill="#e8a830" opacity="0.85"/>
+<rect x="1045" y="119" width="31" height="9" fill="#e8a830" opacity="0.85"/>
+<rect x="1085" y="119" width="31" height="9" fill="#e8a830" opacity="0.25"/>
+<rect x="1125" y="119" width="31" height="9" fill="#d64440" opacity="0.25"/>
+<rect x="1165" y="119" width="31" height="9" fill="#d64440" opacity="0.25"/>
+<path d="M 1124 112 V 137" stroke="#d64440" stroke-width="3"/>
+<path d="M 62 836 H 448 L 470 858 V 949 L 448 971 H 62 L 40 949 V 858 Z" fill="#020407" opacity=".72"/>
+<path d="M 57 830 H 443 L 465 852 V 943 L 443 965 H 57 L 35 943 V 852 Z" fill="#111620" fill-opacity="0.87" stroke="#2b536e" stroke-width="3"/>
+<path d="M 67 836 H 419" stroke="#6bc7ff" stroke-width="3" opacity=".92"/>
+<path d="M 43 939 V 858" stroke="#3a82b2" stroke-width="2" opacity=".65"/>
+<polygon points="435,957 455,937 455,953 451,957" fill="#6bc7ff" opacity=".65"/>
+<circle cx="54" cy="849" r="4" fill="#05080d" stroke="#8592a0" stroke-width="2"/>
+<circle cx="99" cy="895" r="42" fill="#091622" stroke="#6bc7ff" stroke-width="3"/>
+<path d="M 75 924 L 84 891 L 99 904 L 114 879 L 124 924" fill="none" stroke="#6bc7ff" stroke-width="6"/>
+<text x="158" y="868" fill="#8592a0" font-size="16" font-weight="600" letter-spacing="2.5" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">航员状态</text>
+<path d="M 158 892 H 425" stroke="#05080d" stroke-width="20"/><path d="M 158 892 H 363" stroke="#d64440" stroke-width="11"/>
+<path d="M 158 928 H 300" stroke="#05080d" stroke-width="15"/><path d="M 158 928 H 260" stroke="#3a82b2" stroke-width="8"/>
+<polygon points="351,934 344,946.12 330,946.12 323,934 330,921.88 344,921.88" fill="#e8a830" stroke="#ffdc82" stroke-width="2"/>
+<polygon points="385,934 378,946.12 364,946.12 357,934 364,921.88 378,921.88" fill="#e8a830" stroke="#ffdc82" stroke-width="2"/>
+<polygon points="419,934 412,946.12 398,946.12 391,934 398,921.88 412,921.88" fill="#1e3a52" stroke="#ffdc82" stroke-width="2"/>
+<path d="M 66 745 H 336 L 350 759 V 803 L 336 817 H 66 L 52 803 V 759 Z" fill="#020407" opacity=".72"/>
+<path d="M 61 739 H 331 L 345 753 V 797 L 331 811 H 61 L 47 797 V 753 Z" fill="#111620" fill-opacity="0.84" stroke="#2b536e" stroke-width="3"/>
+<path d="M 71 745 H 307" stroke="#3a82b2" stroke-width="3" opacity=".92"/>
+<path d="M 55 793 V 759" stroke="#3a82b2" stroke-width="2" opacity=".65"/>
+<polygon points="315,803 335,783 335,799 331,803" fill="#3a82b2" opacity=".65"/>
+<circle cx="66" cy="758" r="4" fill="#05080d" stroke="#8592a0" stroke-width="2"/>
+<circle cx="91" cy="775" r="23" fill="#0b1721" stroke="#3a82b2" stroke-width="2"/>
+<text x="126" y="765" fill="#e0e8f0" font-size="18" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">宋梅</text>
+<path d="M 127 784 H 309" stroke="#05080d" stroke-width="13"/><path d="M 127 784 H 278" stroke="#3a82b2" stroke-width="7"/>
+<path d="M 455 863 L 508 813 H 1412 L 1465 863 L 1502 1080 H 418 Z" fill="#070b11" fill-opacity=".82" stroke="#1e3a52" stroke-width="4"/>
+<path d="M 510 831 H 1410" stroke="#6bc7ff" stroke-width="3" opacity=".75"/>
+<path d="M 618 875 H 736 L 751 890 V 1088 L 736 1103 H 618 L 603 1088 V 890 Z" fill="#101720" stroke="#6bc7ff" stroke-width="2"/>
+<path d="M 618 917 H 736 V 998 H 618 Z" fill="#1b2d3a"/>
+<circle cx="631" cy="899" r="13" fill="#6bc7ff"/><circle cx="678" cy="957" r="25" fill="none" stroke="#6bc7ff" stroke-width="4" opacity=".75"/>
+<path d="M 626 1025 H 728 M 626 1045 H 715 M 626 1065 H 722" stroke="#8592a0" stroke-width="5" opacity=".45"/>
+<path d="M 778 866 H 896 L 911 881 V 1079 L 896 1094 H 778 L 763 1079 V 881 Z" fill="#101720" stroke="#6bc7ff" stroke-width="2"/>
+<path d="M 778 908 H 896 V 989 H 778 Z" fill="#1b2d3a"/>
+<circle cx="791" cy="890" r="13" fill="#6bc7ff"/><circle cx="838" cy="948" r="25" fill="none" stroke="#6bc7ff" stroke-width="4" opacity=".75"/>
+<path d="M 786 1016 H 888 M 786 1036 H 875 M 786 1056 H 882" stroke="#8592a0" stroke-width="5" opacity=".45"/>
+<path d="M 938 829 H 1056 L 1071 844 V 1042 L 1056 1057 H 938 L 923 1042 V 844 Z" fill="#101720" stroke="#e8a830" stroke-width="4"/>
+<path d="M 938 871 H 1056 V 952 H 938 Z" fill="#1b2d3a"/>
+<circle cx="951" cy="853" r="13" fill="#e8a830"/><circle cx="998" cy="911" r="25" fill="none" stroke="#e8a830" stroke-width="4" opacity=".75"/>
+<path d="M 946 979 H 1048 M 946 999 H 1035 M 946 1019 H 1042" stroke="#8592a0" stroke-width="5" opacity=".45"/>
+<path d="M 1098 866 H 1216 L 1231 881 V 1079 L 1216 1094 H 1098 L 1083 1079 V 881 Z" fill="#101720" stroke="#6bc7ff" stroke-width="2"/>
+<path d="M 1098 908 H 1216 V 989 H 1098 Z" fill="#1b2d3a"/>
+<circle cx="1111" cy="890" r="13" fill="#6bc7ff"/><circle cx="1158" cy="948" r="25" fill="none" stroke="#6bc7ff" stroke-width="4" opacity=".75"/>
+<path d="M 1106 1016 H 1208 M 1106 1036 H 1195 M 1106 1056 H 1202" stroke="#8592a0" stroke-width="5" opacity=".45"/>
+<path d="M 1258 875 H 1376 L 1391 890 V 1088 L 1376 1103 H 1258 L 1243 1088 V 890 Z" fill="#101720" stroke="#d64440" stroke-width="2"/>
+<path d="M 1258 917 H 1376 V 998 H 1258 Z" fill="#1b2d3a"/>
+<circle cx="1271" cy="899" r="13" fill="#d64440"/><circle cx="1318" cy="957" r="25" fill="none" stroke="#d64440" stroke-width="4" opacity=".75"/>
+<path d="M 1266 1025 H 1368 M 1266 1045 H 1355 M 1266 1065 H 1362" stroke="#8592a0" stroke-width="5" opacity=".45"/>
+<path d="M 1560 869 H 1810 L 1872 925 V 967 L 1818 1021 H 1560 L 1512 979 V 920 Z" fill="#100d08" stroke="#72511f" stroke-width="5"/>
+<path d="M 1580 889 H 1798 L 1847 934 V 958 L 1808 998 H 1578 L 1538 965 V 930 Z" fill="#e8a830" opacity=".16" stroke="#e8a830" stroke-width="3"/>
+<text x="1694" y="955" fill="#ffdc82" font-size="27" font-weight="600" letter-spacing="4" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">结束回合</text>
+<path d="M 1747 970 H 1798 L 1811 957" fill="none" stroke="#ffdc82" stroke-width="4"/>
+<path d="M 1537 824 H 1640 L 1655 839 L 1640 854 H 1537 L 1522 839 Z" fill="#0a0e14" stroke="#3a82b2" stroke-width="2"/>
+<path d="M 1695 824 H 1798 L 1813 839 L 1798 854 H 1695 L 1680 839 Z" fill="#0a0e14" stroke="#3a82b2" stroke-width="2"/>
+<text x="1589" y="845" fill="#8592a0" font-size="15" font-weight="600" letter-spacing="1.5" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">牌库 12</text>
+<text x="1747" y="845" fill="#8592a0" font-size="15" font-weight="600" letter-spacing="1.5" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">弃牌 04</text>
+<rect x="8" y="8" width="1904" height="1064" fill="none" stroke="#1e3a52" stroke-width="4"/>
+<path d="M 8 112 V 8 H 112 M 1808 8 H 1912 V 112 M 1912 968 V 1072 H 1808 M 112 1072 H 8 V 968" fill="none" stroke="#6bc7ff" stroke-width="5" opacity=".7"/>
+</svg>

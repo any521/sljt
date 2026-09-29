@@ -1,0 +1,1241 @@
+extends Control
+## 战斗界面 —— 全程序化构建，不依赖任何美术资源
+##
+## M0 目的：验证「规程↔变异交替 + 隔离值」这个核心循环好不好玩。
+## 所有视觉都是色块与文字，等机制验证通过后再替换为 Aseprite 生成的素材。
+
+# ---------------------------------------------------------------- 配色
+
+const BG := Color(0.043, 0.055, 0.078)
+const PANEL_BG := Color(0.086, 0.098, 0.129)
+const PANEL_BORDER := Color(0.16, 0.19, 0.24)
+const TEXT_MAIN := Color(0.88, 0.91, 0.94)
+const TEXT_DIM := Color(0.52, 0.57, 0.64)
+const HP_COLOR := Color(0.83, 0.26, 0.33)
+const BLOCK_COLOR := Color(0.44, 0.71, 0.92)
+const ENERGY_COLOR := Color(0.95, 0.79, 0.35)
+const ISOLATION_COLOR := Color(0.72, 0.25, 0.62)
+
+const FACTION_COLORS := {
+	CardData.Faction.PROTOCOL: Color(0.35, 0.68, 0.95),
+	CardData.Faction.MUTATION: Color(0.83, 0.27, 0.60),
+	CardData.Faction.NEUTRAL: Color(0.62, 0.66, 0.62),
+}
+
+## 怪物统一立绘（眷族·附体）
+const ENEMY_SPRITE := "res://assets/art/characters/enemy/kin_attached_512.png"
+
+# ---------------------------------------------------------------- 状态
+
+var combat: CombatManager
+var card_views: Array[CardView] = []
+
+var _enemy_rows: Array[Dictionary] = []
+var _log_lines: Array[String] = []
+
+# UI 引用
+var _log_label: RichTextLabel
+var _hp_bar: ProgressBar
+var _hp_label: Label
+var _block_bar: ProgressBar
+var _block_label: Label
+var _energy_label: Label
+var _status_label: Label
+var _isolation_bar: ProgressBar
+var _isolation_label: Label
+var _isolation_stage: Label
+var _echo_label: Label
+var _pile_label: Label
+var _hand_box: Control
+var _end_turn_button: Button
+var _enemy_box: HBoxContainer
+var _result_overlay: Control
+var _result_label: Label
+var _hint_label: Label
+var _rule_body: RichTextLabel
+var _next_label: Label
+var _character_box: Control
+var _hero_anim: SpriteAnim
+var _ally_anim: SpriteAnim
+
+# —— 拖拽状态 ——
+var _dragging := false
+var _drag_view: CardView = null
+var _drag_offset := Vector2.ZERO
+var _hover_enemy := -1
+
+
+func _ready() -> void:
+	set_anchors_preset(Control.PRESET_FULL_RECT)
+	mouse_filter = Control.MOUSE_FILTER_PASS
+	_build_ui()
+	start_new_combat()
+
+
+# ================================================================ 战斗生命周期
+
+func start_new_combat() -> void:
+	_hide_result()
+	_log_lines.clear()
+	combat = CombatManager.new()
+	combat.combat_ended.connect(_on_combat_ended)
+	combat.hand_changed.connect(_on_hand_changed)
+	combat.energy_changed.connect(func(_c, _m): _refresh_all())
+	combat.player_stats_changed.connect(_refresh_player)
+	combat.enemy_stats_changed.connect(func(_i): _refresh_enemies())
+	combat.enemy_intents_updated.connect(_refresh_enemies)
+	combat.echo_changed.connect(_on_echo_changed)
+	combat.isolation_changed.connect(func(_v): _refresh_isolation())
+	combat.isolation_threshold.connect(_on_isolation_threshold)
+	combat.damage_dealt.connect(_on_damage)
+	combat.whisper.connect(func(t): _log("[color=#b8449e]%s[/color]" % t))
+	combat.turn_started.connect(_on_turn_started)
+
+	var enemy_data_list: Array[EnemyData] = [
+		CardDB.get_enemy("lurker"),
+		CardDB.get_enemy("sentry"),
+	]
+	combat.start_combat(CardDB.build_starter_deck(), enemy_data_list)
+
+	_log("[color=#6bc7ff]遭遇：潜伏者 + 巡逻机兵[/color]")
+	_log("[color=#8a919e]交替打出「规程」与「变异」可累积回声连击，但每次变异都在推高隔离值。[/color]")
+	_refresh_all()
+
+
+func restart() -> void:
+	if combat != null and not combat.is_over():
+		_log("[color=#8a919e]—— 重开 ——[/color]")
+	start_new_combat()
+
+
+# ================================================================ 信号处理
+
+func _on_turn_started(turn_number: int, is_player: bool) -> void:
+	if is_player:
+		_log("[color=#8a919e]── 第 %d 回合 · 你的回合 ──[/color]" % (turn_number + 1))
+	_refresh_all()
+
+
+func _on_hand_changed() -> void:
+	_rebuild_hand()
+
+
+func _on_damage(source: String, target: String, amount: int, blocked: int) -> void:
+	if amount == 0 and blocked > 0:
+		_log("%s → %s：[color=#70b5eb]被格挡 %d[/color]" % [source, target, blocked])
+	elif blocked > 0:
+		_log("%s → %s：[color=#e0575f]%d[/color] 点伤害（格挡吸收 %d）" % [source, target, amount, blocked])
+	else:
+		_log("%s → %s：[color=#e0575f]%d[/color] 点伤害" % [source, target, amount])
+
+
+## 回声变化：只做 UI 刷新；具体原因由出牌/回合逻辑负责解释
+func _on_echo_changed(_streak: int, _multiplier: float) -> void:
+	_refresh_echo()
+	_refresh_next_hint()
+
+
+func _on_isolation_threshold(value: int, stage_name: String) -> void:
+	_log("[color=#b8449e]【隔离 %d】%s[/color]" % [value, stage_name])
+	match value:
+		3:
+			_log("[color=#b8449e]  你手上有一张牌变了。[/color]")
+		6:
+			_log("[color=#b8449e]  你的组织开始自己生长。每回合 +1 力量，代价是持续失血。[/color]")
+		8:
+			_log("[color=#b8449e]  你的手开始不听话了。[/color]")
+		10:
+			_log("[color=#b8449e]  同化。[/color]")
+	_refresh_all()
+
+
+func _on_combat_ended(victory: bool) -> void:
+	if combat.phase == CombatManager.Phase.ASSIMILATED:
+		_show_result("同  化", "你不再是你自己了。\n\n它们用你的手打开了舱门。", Color(0.72, 0.25, 0.62))
+	elif victory:
+		var max_streak: int = combat.echo.max_streak_this_combat
+		_show_result("清  除", "威胁已清除。\n\n本次战斗最高回声连击：%d\n最终隔离值：%d / 10（%s）"
+			% [max_streak, combat.isolation.value, combat.isolation.stage_name()],
+			Color(0.35, 0.78, 0.55))
+	else:
+		_show_result("失  败", "生命归零。\n\n最终隔离值：%d / 10" % combat.isolation.value,
+			Color(0.83, 0.26, 0.33))
+
+
+func _on_end_turn_pressed() -> void:
+	if combat.is_over():
+		restart()
+		return
+	combat.end_turn()
+	_refresh_all()
+
+
+# ================================================================ UI 构建
+
+func _build_ui() -> void:
+	var bg := ColorRect.new()
+	bg.color = BG
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(bg)
+
+	_build_enemy_area()
+	_build_character_area()
+	_build_hand_area()
+	_build_stats_panel()
+	_build_echo_panel()
+	_build_side_panel()
+	_build_log_panel()
+	_build_result_overlay()
+
+
+## 左上角状态面板 —— 生命 / 格挡 / 隔离值 / 能量
+## （左下角空出来留给 2.5D 角色立绘）
+func _build_stats_panel() -> void:
+	var panel := _make_panel(Vector2(30, 26), Vector2(300, 330))
+	add_child(panel)
+
+	var v := VBoxContainer.new()
+	v.set_anchors_preset(Control.PRESET_FULL_RECT)
+	v.add_theme_constant_override("separation", 7)
+	v.offset_left = 14
+	v.offset_top = 12
+	v.offset_right = -14
+	v.offset_bottom = -12
+	panel.add_child(v)
+
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 6)
+	v.add_child(head)
+
+	var name_label := _make_label("沈明砚", 22, TEXT_MAIN)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(name_label)
+
+	_energy_label = _make_label("3/3", 20, ENERGY_COLOR)
+	_energy_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	head.add_child(_energy_label)
+
+	v.add_child(_make_separator())
+
+	var hp_struct := _build_stat_bar(v, "生命", HP_COLOR, 70)
+	_hp_bar = hp_struct["bar"]
+	_hp_label = hp_struct["value"]
+
+	var block_struct := _build_stat_bar(v, "格挡", BLOCK_COLOR, 50)
+	_block_bar = block_struct["bar"]
+	_block_label = block_struct["value"]
+
+	var iso_struct := _build_stat_bar(v, "隔离值", ISOLATION_COLOR, 10)
+	_isolation_bar = iso_struct["bar"]
+	_isolation_label = iso_struct["value"]
+
+	_isolation_stage = _make_label("正常", 14, TEXT_DIM)
+	_isolation_stage.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(_isolation_stage)
+
+	v.add_child(_make_separator())
+
+	_status_label = _make_label("", 15, TEXT_DIM)
+	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_status_label.custom_minimum_size = Vector2(0, 44)
+	v.add_child(_status_label)
+
+
+## 左下角角色槽位 —— 2.5D 角色立绘的预留位置（暂时显示占位框）
+## 左下角角色区 —— 宋梅（左/靠后）+ 沈明砚（右/靠前），两人都朝右
+## 用战斗序列帧循环播放，形成待机呼吸感
+func _build_character_area() -> void:
+	_character_box = Control.new()
+	_character_box.name = "CharacterBox"
+	_character_box.position = Vector2(30, 616)
+	_character_box.size = Vector2(540, 420)
+	_character_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_character_box)
+
+	# 宋梅（生物学家）
+	_ally_anim = SpriteAnim.new()
+	_ally_anim.position = Vector2(0, 132)
+	_ally_anim.size = Vector2(250, 290)
+	_character_box.add_child(_ally_anim)
+	_ally_anim.setup("res://assets/art/characters/song_mei/battle_512x384.png",
+		4, 3, 8.0, false)
+
+	# 沈明砚（主角，站在宋梅前面，更靠近敌人）
+	_hero_anim = SpriteAnim.new()
+	_hero_anim.position = Vector2(238, 62)
+	_hero_anim.size = Vector2(292, 360)
+	_character_box.add_child(_hero_anim)
+	_hero_anim.setup("res://assets/art/characters/shen_mingyan/battle_infected_512x384.png",
+		4, 3, 8.0, false)
+
+
+## 回声规则面板 —— 常驻显示「规则原文 + 下一张该出什么」
+## 这是本作最核心的机制，绝不能只靠一行会滚走的日志来教。
+func _build_echo_panel() -> void:
+	var panel := _make_panel(Vector2(30, 366), Vector2(300, 240))
+	add_child(panel)
+
+	var v := VBoxContainer.new()
+	v.set_anchors_preset(Control.PRESET_FULL_RECT)
+	v.add_theme_constant_override("separation", 6)
+	v.offset_left = 14
+	v.offset_top = 10
+	v.offset_right = -14
+	v.offset_bottom = -10
+	panel.add_child(v)
+
+	v.add_child(_make_label("回 声 规 则", 16, TEXT_DIM))
+
+	_rule_body = RichTextLabel.new()
+	_rule_body.bbcode_enabled = true
+	_rule_body.scroll_active = false
+	_rule_body.fit_content = false
+	_rule_body.custom_minimum_size = Vector2(0, 108)
+	_rule_body.add_theme_font_size_override("normal_font_size", 13)
+	_rule_body.add_theme_constant_override("line_separation", 3)
+	_rule_body.text = (
+		"[color=#8a919e]与上一张[/color][color=#6bc7ff]归属相反[/color][color=#8a919e] → 连击 +1[/color]\n"
+		+ "[color=#8a919e]与上一张[/color][color=#e0575f]归属相同[/color][color=#8a919e] → 连击清零[/color]\n"
+		+ "[color=#8a919e]打「中立」牌 → 不打断[/color]\n"
+		+ "[color=#8a919e]倍率 1.0 / 1.15 / 1.3 / 1.5 / 1.75 / 2.0[/color]"
+	)
+	v.add_child(_rule_body)
+
+	v.add_child(_make_separator())
+
+	_next_label = _make_label("", 16, TEXT_MAIN)
+	_next_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_next_label.custom_minimum_size = Vector2(0, 46)
+	v.add_child(_next_label)
+
+
+## 怪物区 —— 屏幕右侧，两个怪物都朝左
+func _build_enemy_area() -> void:
+	var box := HBoxContainer.new()
+	box.name = "EnemyBox"
+	box.position = Vector2(860, 50)
+	box.size = Vector2(950, 440)
+	box.add_theme_constant_override("separation", 70)
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	add_child(box)
+	_enemy_box = box
+
+
+## 手牌区 —— 底部，扇形排列（卡牌在 _rebuild_hand 里手动定位）
+func _build_hand_area() -> void:
+	_hand_box = Control.new()
+	_hand_box.name = "HandBox"
+	_hand_box.position = Vector2(555, 690)
+	_hand_box.size = Vector2(1050, 340)
+	_hand_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_hand_box)
+
+
+## 通用状态条（用于生命 / 格挡 / 隔离值）
+func _build_stat_bar(parent: Node, label_text: String, color: Color, max_value: float) -> Dictionary:
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 6)
+	parent.add_child(head)
+
+	var name_label := _make_label(label_text, 16, TEXT_DIM)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(name_label)
+
+	var value_label := _make_label("", 16, color)
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	head.add_child(value_label)
+
+	var bar := ProgressBar.new()
+	bar.custom_minimum_size = Vector2(0, 24)
+	bar.max_value = max_value
+	bar.value = 0
+	bar.show_percentage = false
+
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = color
+	fill.set_corner_radius_all(3)
+	bar.add_theme_stylebox_override("fill", fill)
+
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.12, 0.13, 0.16)
+	bg.set_corner_radius_all(3)
+	bg.border_color = Color(0.2, 0.22, 0.27)
+	bg.set_border_width_all(1)
+	bar.add_theme_stylebox_override("background", bg)
+	parent.add_child(bar)
+
+	return {"bar": bar, "value": value_label, "name": name_label}
+
+
+func _build_side_panel() -> void:
+	var panel := _make_panel(Vector2(1620, 700), Vector2(270, 340))
+	add_child(panel)
+
+	var v := VBoxContainer.new()
+	v.set_anchors_preset(Control.PRESET_FULL_RECT)
+	v.add_theme_constant_override("separation", 10)
+	v.offset_left = 14
+	v.offset_top = 12
+	v.offset_right = -14
+	v.offset_bottom = -12
+	panel.add_child(v)
+
+	v.add_child(_make_label("回 声", 15, TEXT_DIM))
+
+	_echo_label = _make_label("连击 0 · ×1.00", 20, TEXT_MAIN)
+	v.add_child(_echo_label)
+
+	v.add_child(_make_separator())
+
+	_pile_label = _make_label("", 14, TEXT_DIM)
+	_pile_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_pile_label.custom_minimum_size = Vector2(0, 62)
+	v.add_child(_pile_label)
+
+	v.add_child(_make_separator())
+
+	_end_turn_button = Button.new()
+	_end_turn_button.text = "结束回合  [空格]"
+	_end_turn_button.custom_minimum_size = Vector2(0, 56)
+	_end_turn_button.add_theme_font_size_override("font_size", 20)
+	_end_turn_button.pressed.connect(_on_end_turn_pressed)
+	v.add_child(_end_turn_button)
+
+	var hint := _make_label("点击卡牌打出  ·  R 重开", 13, TEXT_DIM)
+	v.add_child(hint)
+
+
+func _build_log_panel() -> void:
+	var panel := _make_panel(Vector2(620, 496), Vector2(950, 186))
+	panel.modulate.a = 0.94
+	add_child(panel)
+
+	_log_label = RichTextLabel.new()
+	_log_label.bbcode_enabled = true
+	_log_label.scroll_active = false
+	_log_label.fit_content = false
+	_log_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_log_label.offset_left = 16
+	_log_label.offset_top = 12
+	_log_label.offset_right = -16
+	_log_label.offset_bottom = -12
+	_log_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	_log_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_log_label.add_theme_font_size_override("normal_font_size", 15)
+	_log_label.add_theme_constant_override("line_separation", 5)
+	panel.add_child(_log_label)
+
+
+## 结算界面 —— 用 CenterContainer 保证文字永远居中且不会溢出屏幕
+func _build_result_overlay() -> void:
+	_result_overlay = Control.new()
+	_result_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_result_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	_result_overlay.visible = false
+	add_child(_result_overlay)
+
+	var dim := ColorRect.new()
+	dim.color = Color(0.02, 0.025, 0.035, 0.9)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_result_overlay.add_child(dim)
+
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_result_overlay.add_child(center)
+
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 28)
+	col.alignment = BoxContainer.ALIGNMENT_CENTER
+	center.add_child(col)
+
+	_result_label = _make_label("", 52, TEXT_MAIN)
+	_result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_result_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_result_label.custom_minimum_size = Vector2(1100, 0)
+	col.add_child(_result_label)
+
+	_hint_label = _make_label("按 R 或点击任意处再战", 20, TEXT_DIM)
+	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	col.add_child(_hint_label)
+
+	_result_overlay.gui_input.connect(func(e):
+		if e is InputEventMouseButton and e.pressed:
+			restart()
+	)
+
+
+func _show_result(title: String, body: String, color: Color) -> void:
+	_result_label.text = "%s\n\n%s" % [title, body]
+	_result_label.add_theme_color_override("font_color", color)
+	_result_overlay.visible = true
+
+
+func _hide_result() -> void:
+	if _result_overlay != null:
+		_result_overlay.visible = false
+
+
+# ================================================================ 刷新
+
+func _refresh_all() -> void:
+	_refresh_player()
+	_refresh_isolation()
+	_refresh_enemies()
+	_refresh_piles()
+	_refresh_echo()
+	_refresh_next_hint()
+	_rebuild_hand()
+
+
+## 常驻提示：要延续连击，下一张牌该出什么归属
+func _refresh_next_hint() -> void:
+	if _next_label == null or combat == null:
+		return
+	var needed := combat.required_faction()
+	if needed == -1:
+		_next_label.text = "先打一张牌\n建立连击基准"
+		_next_label.add_theme_color_override("font_color", TEXT_DIM)
+		return
+	var cn := "规程" if needed == CardData.Faction.PROTOCOL else "变异"
+	var col: Color = FACTION_COLORS[needed]
+	_next_label.text = "▶ 下一张出「%s」\n    可延续连击" % cn
+	_next_label.add_theme_color_override("font_color", col)
+
+
+## 卡牌上的预测标记：延续 / 打断 / 中立
+func _card_prediction_badge(instance: CardInstance) -> Dictionary:
+	var verdict := combat.echo.predict(instance.faction())
+	match verdict:
+		"extend":
+			return {
+				"text": "▶ 延续连击 → %d" % combat.echo.streak_if_played(instance.faction()),
+				"color": Color(0.35, 0.85, 0.55),
+			}
+		"break":
+			return {
+				"text": "✕ 打断！连击归零",
+				"color": Color(0.92, 0.38, 0.38),
+			}
+		"neutral":
+			return {"text": "— 中立 不影响连击", "color": Color(0.55, 0.6, 0.65)}
+	return {"text": "", "color": TEXT_DIM}
+
+
+func _refresh_player() -> void:
+	if combat == null:
+		return
+	# 生命
+	_hp_bar.max_value = combat.player_max_hp
+	_hp_bar.value = combat.player_hp
+	_hp_label.text = "%d / %d" % [combat.player_hp, combat.player_max_hp]
+
+	# 格挡（上限动态跟随，保证能显示超过基准的格挡）
+	var blk: int = combat.player_block
+	_block_bar.max_value = maxi(50, blk)
+	_block_bar.value = blk
+	_block_label.text = str(blk)
+	_block_label.add_theme_color_override("font_color",
+		BLOCK_COLOR if blk > 0 else TEXT_DIM)
+
+	_energy_label.text = "%d/%d" % [combat.energy, combat.max_energy]
+
+	var parts: PackedStringArray = []
+	for key in ["strength", "weak", "vulnerable", "poison", "shield"]:
+		var v: int = combat.player_statuses.get(key, 0)
+		if v > 0:
+			parts.append("%s %d" % [_status_cn(key), v])
+	_status_label.text = " ".join(parts) if parts.size() > 0 else ""
+
+
+func _refresh_isolation() -> void:
+	if combat == null:
+		return
+	_isolation_bar.value = combat.isolation.value
+	_isolation_label.text = "%d / 10" % combat.isolation.value
+	_isolation_stage.text = combat.isolation.stage_name()
+	var c: Color = ISOLATION_COLOR.lerp(Color(0.95, 0.35, 0.30), float(combat.isolation.value) / 10.0)
+	_isolation_label.add_theme_color_override("font_color", c)
+	_isolation_stage.add_theme_color_override("font_color", c)
+
+
+func _refresh_echo() -> void:
+	if combat == null:
+		return
+	var m := combat.echo.current_multiplier()
+	_echo_label.text = "连击 %d · ×%.2f" % [combat.echo.streak, m]
+	var c: Color = TEXT_MAIN.lerp(ENERGY_COLOR, (m - 1.0) / 1.0)
+	_echo_label.add_theme_color_override("font_color", c if combat.echo.streak > 0 else TEXT_DIM)
+
+
+func _refresh_piles() -> void:
+	if combat == null:
+		return
+	_pile_label.text = "抽牌堆 %d · 弃牌堆 %d · 消耗 %d" % [
+		combat.draw_pile.size(), combat.discard_pile.size(), combat.exhaust_pile.size()
+	]
+
+
+func _refresh_enemies() -> void:
+	if combat == null:
+		return
+	if _enemy_rows.size() != combat.enemies.size():
+		_rebuild_enemies()
+	for i in _enemy_rows.size():
+		_update_enemy_row(i)
+
+
+func _rebuild_enemies() -> void:
+	for child in _enemy_box.get_children():
+		child.queue_free()
+	_enemy_rows.clear()
+
+	for i in combat.enemies.size():
+		var enemy: Dictionary = combat.enemies[i]
+		var panel := _make_panel(Vector2.ZERO, Vector2(320, 392))
+		panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		_enemy_box.add_child(panel)
+
+		var v := VBoxContainer.new()
+		v.set_anchors_preset(Control.PRESET_FULL_RECT)
+		v.add_theme_constant_override("separation", 10)
+		v.offset_left = 16
+		v.offset_top = 16
+		v.offset_right = -16
+		v.offset_bottom = -16
+		panel.add_child(v)
+
+		var intent_label := _make_label("", 22, ENERGY_COLOR)
+		intent_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		v.add_child(intent_label)
+
+		# ★ 怪物立绘：统一的眷族模型，水平翻转 → 面朝左（面向玩家）
+		var art_holder := Control.new()
+		art_holder.custom_minimum_size = Vector2(0, 196)
+		art_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		v.add_child(art_holder)
+
+		var spr := TextureRect.new()
+		spr.set_anchors_preset(Control.PRESET_FULL_RECT)
+		spr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		spr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		spr.flip_h = true
+		spr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if ResourceLoader.exists(ENEMY_SPRITE):
+			spr.texture = load(ENEMY_SPRITE)
+		art_holder.add_child(spr)
+
+		var name_label := _make_label(enemy["name"], 22, TEXT_MAIN)
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		v.add_child(name_label)
+
+		var hp_bar := ProgressBar.new()
+		hp_bar.custom_minimum_size = Vector2(0, 24)
+		hp_bar.max_value = enemy["max_hp"]
+		hp_bar.value = enemy["hp"]
+		hp_bar.show_percentage = false
+		var fill := StyleBoxFlat.new()
+		fill.bg_color = HP_COLOR
+		hp_bar.add_theme_stylebox_override("fill", fill)
+		var bg_style := StyleBoxFlat.new()
+		bg_style.bg_color = Color(0.14, 0.10, 0.12)
+		hp_bar.add_theme_stylebox_override("background", bg_style)
+		v.add_child(hp_bar)
+
+		var hp_label := _make_label("", 17, TEXT_DIM)
+		hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		v.add_child(hp_label)
+
+		var status_label := _make_label("", 15, TEXT_DIM)
+		status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		v.add_child(status_label)
+
+		_enemy_rows.append({
+			"panel": panel, "intent": intent_label, "art": spr,
+			"name": name_label, "hp_bar": hp_bar, "hp_label": hp_label,
+			"status": status_label,
+		})
+
+
+func _update_enemy_row(index: int) -> void:
+	if index >= _enemy_rows.size() or index >= combat.enemies.size():
+		return
+	var enemy: Dictionary = combat.enemies[index]
+	var row: Dictionary = _enemy_rows[index]
+
+	row["hp_bar"].max_value = enemy["max_hp"]
+	row["hp_bar"].value = enemy["hp"]
+	row["hp_label"].text = "%d / %d" % [enemy["hp"], enemy["max_hp"]]
+
+	# 意图
+	if not enemy["alive"]:
+		row["intent"].text = "── 已清除 ──"
+		row["intent"].add_theme_color_override("font_color", TEXT_DIM)
+		row["panel"].modulate = Color(0.35, 0.35, 0.4, 0.6)
+	else:
+		row["panel"].modulate = Color.WHITE
+		var intent: Dictionary = enemy["data"].intent_at(enemy["intent_index"])
+		row["intent"].text = _intent_text(intent)
+		row["intent"].add_theme_color_override("font_color",
+			Color(0.92, 0.42, 0.42) if intent.get("type", "") in ["attack", "attack_block"] else ENERGY_COLOR)
+
+	# 状态 + 格挡
+	var parts: PackedStringArray = []
+	if enemy["block"] > 0:
+		parts.append("[color=#70b5eb]格挡 %d[/color]" % enemy["block"])
+	for key in ["strength", "weak", "vulnerable", "poison"]:
+		var v: int = enemy["statuses"].get(key, 0)
+		if v > 0:
+			parts.append("%s %d" % [_status_cn(key), v])
+	row["status"].text = "  ".join(parts)
+
+
+func _intent_text(intent: Dictionary) -> String:
+	var t: String = intent.get("type", "unknown")
+	var v: int = intent.get("value", 0)
+	match t:
+		"attack":
+			var times: int = intent.get("times", 1)
+			return "⚔ 攻击 %d%s" % [v, (" ×%d" % times) if times > 1 else ""]
+		"block":
+			return "🛡 格挡 %d" % v
+		"attack_block":
+			return "⚔ 攻击 %d + 🛡 %d" % [v, intent.get("block", 0)]
+		"debuff":
+			return "⬇ 施加%s %d" % [_status_cn(intent.get("status", "")), v]
+		"buff":
+			return "⬆ 获得%s %d" % [_status_cn(intent.get("status", "")), v]
+	return "？ 未知"
+
+
+func _rebuild_hand() -> void:
+	if combat == null:
+		return
+	# 必须先 remove_child 再 queue_free —— queue_free 要到帧末才真正移除节点，
+	# 否则旧卡牌视图会和新卡牌挤在一起（表现成「手牌被整体刷新/重影」）
+	for v in card_views:
+		if is_instance_valid(v):
+			_hand_box.remove_child(v)
+			v.queue_free()
+	card_views.clear()
+
+	for instance in combat.hand:
+		var view := CardView.new()
+		view.owner_view = self
+		view.setup(combat, instance)
+		view.card_pressed.connect(_on_card_pressed)
+		_hand_box.add_child(view)
+		card_views.append(view)
+
+	_layout_hand()
+
+
+## 扇形排列：中间最高、旋转为 0；越往两边越下沉、越向外旋转
+func _layout_hand() -> void:
+	var n := card_views.size()
+	if n == 0:
+		return
+	var box_w := _hand_box.size.x
+	var box_h := _hand_box.size.y
+	var card_w := CardView.CARD_SIZE.x
+	var card_h := CardView.CARD_SIZE.y
+
+	var max_spread := 148.0     # 相邻卡牌最大水平间距
+	var max_rot := 11.0         # 最外侧卡牌的旋转角（度）
+	var max_drop := 26.0        # 最外侧卡牌的下沉量
+
+	# 手牌多时自动收紧间距
+	var spread := max_spread
+	if n > 1 and (n - 1) * spread + card_w > box_w:
+		spread = (box_w - card_w) / float(n - 1)
+	spread = maxf(spread, 40.0)
+
+	var mid := (n - 1) / 2.0
+	var total_w := (n - 1) * spread + card_w
+	var start_x := (box_w - total_w) / 2.0
+	var base_y := box_h - card_h - max_drop
+
+	for i in n:
+		var v := card_views[i]
+		if not is_instance_valid(v):
+			continue
+		var t := 0.0 if n == 1 else (i - mid) / mid
+		v.size = Vector2(card_w, card_h)
+		v.pivot_offset = Vector2(card_w / 2.0, card_h)   # 轴心：底部中点
+		v.position = Vector2(start_x + i * spread, base_y + absf(t) * max_drop)
+		v.rotation = deg_to_rad(t * max_rot)
+		v.z_index = i
+
+
+# ================================================================ 拖拽出牌
+
+func _on_card_pressed(view: CardView) -> void:
+	if combat.is_over():
+		return
+	if not combat.can_play(view.instance):
+		_log("[color=#8a919e]能量不足，无法打出「%s」[/color]" % view.instance.display_name())
+		return
+	_dragging = true
+	_drag_view = view
+	view.z_index = 200
+	view.rotation = 0.0
+	view.scale = Vector2(1.1, 1.1)
+	view.pivot_offset = view.size * 0.5
+	var local_mouse := _hand_box.get_global_transform().affine_inverse() * get_global_mouse_position()
+	_drag_offset = view.position - local_mouse
+
+
+func _update_drag() -> void:
+	if _drag_view == null or not is_instance_valid(_drag_view):
+		return
+	var local_mouse := _hand_box.get_global_transform().affine_inverse() * get_global_mouse_position()
+	_drag_view.position = local_mouse + _drag_offset
+	_drag_view.rotation = 0.0
+	_detect_drag_target()
+
+
+## 检测鼠标下方是哪个怪物，并高亮
+func _detect_drag_target() -> void:
+	var mouse := get_global_mouse_position()
+	var found := -1
+	for i in _enemy_rows.size():
+		if i >= combat.enemies.size():
+			break
+		if not combat.enemies[i]["alive"]:
+			continue
+		var ctrl: Control = _enemy_rows[i].get("panel")
+		if ctrl != null and is_instance_valid(ctrl) and ctrl.get_global_rect().has_point(mouse):
+			found = i
+			break
+	if found == _hover_enemy:
+		return
+	_hover_enemy = found
+	for i in _enemy_rows.size():
+		var ctrl: Control = _enemy_rows[i].get("panel")
+		if ctrl != null and is_instance_valid(ctrl):
+			ctrl.modulate = Color(1.5, 1.5, 1.5) if i == found else Color.WHITE
+
+
+func _clear_enemy_highlight() -> void:
+	for i in _enemy_rows.size():
+		var ctrl: Control = _enemy_rows[i].get("panel")
+		if ctrl != null and is_instance_valid(ctrl):
+			if i < combat.enemies.size() and combat.enemies[i]["alive"]:
+				ctrl.modulate = Color.WHITE
+
+
+func _finish_drag() -> void:
+	var view := _drag_view
+	var target := _hover_enemy
+	_dragging = false
+	_drag_view = null
+	_hover_enemy = -1
+	if view == null or not is_instance_valid(view):
+		return
+	_clear_enemy_highlight()
+	if target >= 0:
+		_play_card_on(view.instance, target)
+	else:
+		# 没拖到怪物身上 → 弹回手牌
+		view.scale = Vector2.ONE
+		_layout_hand()
+
+
+## 对指定怪物出牌
+func _play_card_on(instance: CardInstance, target_index: int) -> void:
+	if combat.is_over():
+		return
+	var pred := combat.echo_prediction(instance)
+	var label := instance.display_name()
+	if not combat.play_card(instance, target_index):
+		_log("[color=#8a919e]能量不足，无法打出「%s」[/color]" % label)
+		_refresh_all()
+		return
+	match pred["verdict"]:
+		"extend":
+			_log("[color=#59d98c]「%s」归属相反 → 连击 %d · 倍率 ×%.2f[/color]"
+				% [label, pred["streak"], pred["multiplier"]])
+		"break":
+			_log("[color=#eb6161]「%s」与上一张归属相同 → 连击清零[/color]" % label)
+		"first":
+			_log("[color=#8a919e]「%s」建立了连击基准[/color]" % label)
+	_refresh_all()
+
+
+func _on_card_clicked(instance: CardInstance) -> void:
+	# 保留旧入口（点击直接打第一个敌人），供非拖拽路径使用
+	_play_card_on(instance, -1)
+
+
+# ================================================================ 工具
+
+func _log(line: String) -> void:
+	_log_lines.append(line)
+	while _log_lines.size() > 7:
+		_log_lines.pop_front()
+	if _log_label != null:
+		_log_label.text = "\n".join(_log_lines)
+
+
+func _status_cn(key: String) -> String:
+	match key:
+		"strength": return "力量"
+		"dexterity": return "敏捷"
+		"weak": return "虚弱"
+		"vulnerable": return "易伤"
+		"poison": return "腐蚀"
+		"shield": return "护盾"
+	return key
+
+
+func _make_panel(pos: Vector2, size_value: Vector2) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.position = pos
+	panel.size = size_value
+	panel.custom_minimum_size = size_value
+	var style := StyleBoxFlat.new()
+	style.bg_color = PANEL_BG
+	style.border_color = PANEL_BORDER
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(6)
+	panel.add_theme_stylebox_override("panel", style)
+	return panel
+
+
+func _make_label(text: String, font_size: int, color: Color) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", color)
+	return label
+
+
+func _make_separator() -> Control:
+	var sep := ColorRect.new()
+	sep.color = PANEL_BORDER
+	sep.custom_minimum_size = Vector2(0, 1)
+	return sep
+
+
+func _input(event: InputEvent) -> void:
+	# —— 拖拽中：跟随鼠标，松手结算 ——
+	if _dragging:
+		if event is InputEventMouseMotion:
+			_update_drag()
+			get_viewport().set_input_as_handled()
+			return
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			_finish_drag()
+			get_viewport().set_input_as_handled()
+			return
+
+	if event.is_action_pressed("end_turn"):
+		if combat != null and combat.is_over():
+			restart()
+		else:
+			_on_end_turn_pressed()
+		get_viewport().set_input_as_handled()
+		return
+
+	# —— 右击 / Esc 取消拖拽 ——
+	if _dragging and event.is_action_pressed("ui_cancel"):
+		_finish_drag()
+		get_viewport().set_input_as_handled()
+
+
+# ================================================================ 卡牌视图
+
+class CardView extends Control:
+	signal card_pressed(view: CardView)
+	signal card_clicked(instance: CardInstance)
+
+	## 卡牌尺寸 —— 与卡框底图比例一致（卡框底图 300x396 = 1:1.32）
+	const CARD_SIZE := Vector2(206, 272)
+
+	## ★ 卡框内部分区（像素坐标，来自对卡框底图的逐行像素分析）
+	##   标题带 3.0%~11.9% / 插画窗 16.2%~58.3% / 文字板 65.7%~91.7%
+	const TITLE_Y0 := 8.0
+	const TITLE_Y1 := 32.0
+	const TITLE_X0 := 52.0
+	const GEM_CENTER := Vector2(29.0, 27.0)
+	const ART_X0 := 19.0
+	const ART_Y0 := 44.0
+	const ART_X1 := 187.0
+	const ART_Y1 := 159.0
+	const TEXT_X0 := 22.0
+	const TEXT_Y0 := 179.0
+	const TEXT_X1 := 184.0
+	const TEXT_Y1 := 249.0
+
+	const FRAME_PATH := "res://assets/art/cards/card_frame_ai.png"
+
+	var instance: CardInstance
+	var owner_view
+	var _combat: CombatManager
+	var _frame_rect: TextureRect
+	var _outline: Panel
+	var _energy_label: Label
+	var _name_label: Label
+	var _art_holder: Control
+	var _art_tex_rect: TextureRect
+	var _art_fallback: ColorRect
+	var _desc_label: Label
+	var _preview_label: Label
+	var _prediction_label: Label
+	var _hovered := false
+
+	func setup(p_combat: CombatManager, p_instance: CardInstance) -> void:
+		_combat = p_combat
+		instance = p_instance
+		custom_minimum_size = CARD_SIZE
+		size = CARD_SIZE
+		mouse_filter = Control.MOUSE_FILTER_STOP
+
+		# ---- 卡框底图（整张卡片的外观都来自它）----
+		_frame_rect = TextureRect.new()
+		if ResourceLoader.exists(FRAME_PATH):
+			_frame_rect.texture = load(FRAME_PATH)
+		_frame_rect.position = Vector2.ZERO
+		_frame_rect.size = CARD_SIZE
+		_frame_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_frame_rect.stretch_mode = TextureRect.STRETCH_SCALE
+		_frame_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_frame_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_frame_rect)
+
+		# ---- 异化牌的高亮描边（默认隐藏）----
+		_outline = Panel.new()
+		_outline.position = Vector2.ZERO
+		_outline.size = CARD_SIZE
+		_outline.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var ostyle := StyleBoxFlat.new()
+		ostyle.bg_color = Color(0, 0, 0, 0)
+		ostyle.border_color = Color(0.95, 0.35, 0.75)
+		ostyle.set_border_width_all(3)
+		ostyle.set_corner_radius_all(6)
+		_outline.add_theme_stylebox_override("panel", ostyle)
+		_outline.visible = false
+		add_child(_outline)
+
+		# ---- 费用数字：叠在卡框自带的费用圆圈上 ----
+		_energy_label = Label.new()
+		_energy_label.add_theme_font_size_override("font_size", 22)
+		_energy_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.5))
+		_energy_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_energy_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_energy_label.position = GEM_CENTER - Vector2(18, 14)
+		_energy_label.size = Vector2(36, 28)
+		_energy_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_energy_label)
+
+		# ---- 卡名：叠在卡框的标题色带上（避开左边的费用圆圈）----
+		_name_label = Label.new()
+		_name_label.add_theme_font_size_override("font_size", 18)
+		_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_name_label.position = Vector2(TITLE_X0, TITLE_Y0)
+		_name_label.size = Vector2(TEXT_X1 - TITLE_X0, TITLE_Y1 - TITLE_Y0)
+		_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_name_label)
+
+		# ---- 卡面插画：放进卡框的插画窗 ----
+		_art_holder = Control.new()
+		_art_holder.position = Vector2(ART_X0, ART_Y0)
+		_art_holder.size = Vector2(ART_X1 - ART_X0, ART_Y1 - ART_Y0)
+		_art_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_art_holder)
+
+		var art_tex := CardArt.get_card_texture(instance.data.id)
+		if art_tex != null:
+			_art_tex_rect = TextureRect.new()
+			_art_tex_rect.texture = art_tex
+			_art_tex_rect.position = Vector2.ZERO
+			_art_tex_rect.size = _art_holder.size
+			_art_tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			# 等比缩放，绝不拉伸；方形卡面在宽窗口里居中留边
+			_art_tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			_art_tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			_art_tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_art_holder.add_child(_art_tex_rect)
+		else:
+			_art_fallback = ColorRect.new()
+			_art_fallback.position = Vector2.ZERO
+			_art_fallback.size = _art_holder.size
+			_art_fallback.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_art_holder.add_child(_art_fallback)
+
+		# ---- 描述文字：叠在卡框的文字面板上 ----
+		_desc_label = Label.new()
+		_desc_label.add_theme_font_size_override("font_size", 13)
+		_desc_label.add_theme_color_override("font_color", Color(0.78, 0.84, 0.9))
+		_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_desc_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+		_desc_label.position = Vector2(TEXT_X0, TEXT_Y0 + 5)
+		_desc_label.size = Vector2(TEXT_X1 - TEXT_X0, 42)
+		_desc_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_desc_label)
+
+		# ---- 预计伤害 ----
+		_preview_label = Label.new()
+		_preview_label.add_theme_font_size_override("font_size", 13)
+		_preview_label.add_theme_color_override("font_color", Color(0.95, 0.6, 0.5))
+		_preview_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_preview_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_preview_label.position = Vector2(TEXT_X0, TEXT_Y0 + 48)
+		_preview_label.size = Vector2(TEXT_X1 - TEXT_X0, 22)
+		_preview_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_preview_label)
+
+		# ---- 回声预测标记（悬停时才显示，避免画面太乱）----
+		_prediction_label = Label.new()
+		_prediction_label.add_theme_font_size_override("font_size", 12)
+		_prediction_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_prediction_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_prediction_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_prediction_label.position = Vector2(TEXT_X0, TEXT_Y1 - 24)
+		_prediction_label.size = Vector2(TEXT_X1 - TEXT_X0, 24)
+		_prediction_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_prediction_label)
+
+		mouse_entered.connect(_on_hover_enter)
+		mouse_exited.connect(_on_hover_exit)
+		gui_input.connect(_on_gui_input)
+		refresh()
+
+
+	func refresh() -> void:
+		if instance == null or _combat == null:
+			return
+		var cost := instance.effective_cost(_combat.isolation)
+		_energy_label.text = str(cost)
+		_name_label.text = instance.display_name()
+		_desc_label.text = instance.data.description
+
+		# 兜底色块（仅在无卡面素材时存在）
+		if _art_fallback != null:
+			var base_color: Color = FACTION_COLORS[instance.faction()]
+			_art_fallback.color = base_color.darkened(0.55)
+			if instance.corrupted:
+				_art_fallback.color = Color(0.45, 0.12, 0.35)
+		# 被异化时给卡面加红紫色偏移
+		if _art_tex_rect != null:
+			_art_tex_rect.modulate = Color(1.35, 0.75, 1.15) if instance.corrupted else Color.WHITE
+
+		var playable := _combat.can_play(instance)
+		# 不可打出时整体压暗
+		modulate = Color(0.55, 0.58, 0.62, 0.92) if not playable else Color.WHITE
+		# 悬停时把卡框提亮一点
+		if _frame_rect != null:
+			_frame_rect.modulate = Color(1.28, 1.28, 1.32) if (_hovered and playable) else Color.WHITE
+		# 异化牌：加品红描边
+		if _outline != null:
+			_outline.visible = instance.corrupted
+		# 卡名颜色：标题色带是归属色，用深色字压在上面
+		_name_label.add_theme_color_override("font_color", Color(0.05, 0.07, 0.1))
+
+		# 预计伤害 —— 用「打出这张牌之后的倍率」，而不是当前倍率
+		var preview := _combat.preview_card_damage(instance)
+		var pred_mult := _combat.echo.multiplier_if_played(instance.faction())
+		if preview > 0:
+			_preview_label.text = "预计伤害 %d%s" % [
+				preview, ("  (×%.2f)" % pred_mult) if pred_mult > 1.0 else ""
+			]
+		else:
+			_preview_label.text = ""
+
+		# 回声预测标记 —— 只在悬停时显示，避免手牌区太乱
+		if _hovered and playable:
+			var badge: Dictionary = owner_view._card_prediction_badge(instance)
+			_prediction_label.text = badge["text"]
+			_prediction_label.add_theme_color_override("font_color", badge["color"])
+			_prediction_label.visible = true
+		else:
+			_prediction_label.text = ""
+			_prediction_label.visible = false
+
+
+	func _on_gui_input(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			card_pressed.emit(self)
+			accept_event()
+
+
+	func _on_hover_enter() -> void:
+		_hovered = true
+		if owner_view != null and owner_view.get("_dragging") == true:
+			return
+		z_index = 50
+		scale = Vector2(1.08, 1.08)
+		pivot_offset = size * 0.5
+		refresh()
+
+
+	func _on_hover_exit() -> void:
+		_hovered = false
+		if owner_view != null and owner_view.get("_dragging") == true:
+			return
+		z_index = 0
+		scale = Vector2.ONE
+		refresh()
+
+
+## 序列帧动画控件 —— 用 AtlasTexture 逐帧切换，避免引入 AnimatedSprite2D
+class SpriteAnim extends Control:
+	var _tex: Texture2D
+	var _cols := 1
+	var _rows := 1
+	var _total := 1
+	var _frame := 0
+	var _fps := 8.0
+	var _accum := 0.0
+	var _playing := true
+	var _atlas: AtlasTexture
+	var _rect: TextureRect
+
+	func setup(tex_path: String, cols: int, rows: int, fps: float, flip_h: bool = false) -> void:
+		_cols = maxi(1, cols)
+		_rows = maxi(1, rows)
+		_total = _cols * _rows
+		_fps = fps
+		if ResourceLoader.exists(tex_path):
+			_tex = load(tex_path)
+		_rect = TextureRect.new()
+		if _tex != null:
+			_atlas = AtlasTexture.new()
+			_atlas.atlas = _tex
+			_rect.texture = _atlas
+		_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_rect.flip_h = flip_h
+		_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_rect)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_update_region()
+
+	func _process(delta: float) -> void:
+		if not _playing or _total <= 1 or _tex == null:
+			return
+		_accum += delta
+		var step := 1.0 / maxf(0.1, _fps)
+		var guard := 0
+		while _accum >= step and guard < 8:
+			_accum -= step
+			_frame = (_frame + 1) % _total
+			_update_region()
+			guard += 1
+
+	func _update_region() -> void:
+		if _tex == null or _atlas == null:
+			return
+		var fw := float(_tex.get_width()) / _cols
+		var fh := float(_tex.get_height()) / _rows
+		var cx := _frame % _cols
+		var cy := int(_frame / _cols)
+		_atlas.region = Rect2(cx * fw, cy * fh, fw, fh)

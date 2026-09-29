@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="86" viewBox="0 0 390 86" shape-rendering="geometricPrecision">
+<defs></defs>
+<path d="M 21 6 H 379 L 395 22 V 76 L 379 92 H 21 L 5 76 V 22 Z" fill="#020407" opacity=".72"/>
+<path d="M 16 0 H 374 L 390 16 V 70 L 374 86 H 16 L 0 70 V 16 Z" fill="#111620" fill-opacity="0.88" stroke="#2b536e" stroke-width="3"/>
+<path d="M 26 6 H 350" stroke="#6bc7ff" stroke-width="3" opacity=".92"/>
+<path d="M 8 66 V 22" stroke="#3a82b2" stroke-width="2" opacity=".65"/>
+<polygon points="360,78 380,58 380,74 376,78" fill="#6bc7ff" opacity=".65"/>
+<circle cx="19" cy="19" r="4" fill="#05080d" stroke="#8592a0" stroke-width="2"/>
+<circle cx="48" cy="43" r="24" fill="#07111a" stroke="#6bc7ff" stroke-width="3"/>
+<path d="M 33 48 L 44 34 L 50 43 L 62 29 L 56 48 L 66 48" fill="none" stroke="#b2e8ff" stroke-width="4"/>
+<path d="M 96 35 H 125 L 120 51 H 91 Z" fill="#6bc7ff" opacity=".96" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 142 35 H 171 L 166 51 H 137 Z" fill="#6bc7ff" opacity=".96" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 188 35 H 217 L 212 51 H 183 Z" fill="#6bc7ff" opacity=".96" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 234 35 H 263 L 258 51 H 229 Z" fill="#6bc7ff" opacity=".96" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 280 35 H 309 L 304 51 H 275 Z" fill="#1e3a52" opacity=".55" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 326 35 H 355 L 350 51 H 321 Z" fill="#1e3a52" opacity=".55" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 92 63 H 356" stroke="#3a82b2" stroke-width="2" stroke-dasharray="5 5" opacity=".65"/>
+</svg>

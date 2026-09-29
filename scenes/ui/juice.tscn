@@ -1,0 +1,79 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://src/ui/effects/juice.gd" id="1_juice"]
+[ext_resource type="PackedScene" path="res://scenes/fx/particle_glyph.tscn" id="2_particle"]
+[ext_resource type="PackedScene" path="res://scenes/fx/ring_glyph.tscn" id="3_ring"]
+[ext_resource type="PackedScene" path="res://scenes/fx/damage_number.tscn" id="4_number"]
+[ext_resource type="PackedScene" path="res://scenes/fx/sound_player.tscn" id="5_sound"]
+[ext_resource type="Shader" path="res://src/ui/effects/shaders/vignette_pulse.gdshader" id="6_vignette"]
+[ext_resource type="Shader" path="res://src/ui/effects/shaders/screen_corruption.gdshader" id="7_corrupt"]
+[ext_resource type="Shader" path="res://src/ui/effects/shaders/chromatic.gdshader" id="8_chroma"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vignette"]
+shader = ExtResource("6_vignette")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_corruption"]
+shader = ExtResource("7_corrupt")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_chromatic"]
+shader = ExtResource("8_chroma")
+
+[node name="Juice" type="Node"]
+script = ExtResource("1_juice")
+particle_prefab = ExtResource("2_particle")
+ring_prefab = ExtResource("3_ring")
+number_prefab = ExtResource("4_number")
+sound_prefab = ExtResource("5_sound")
+
+[node name="PresentationFX" type="Control" parent="."]
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+z_index = 150
+
+[node name="Flash" type="ColorRect" parent="PresentationFX"]
+offset_right = 1920.0
+offset_bottom = 1055.0
+color = Color(1, 1, 1, 0)
+mouse_filter = 2
+
+[node name="Vignette" type="ColorRect" parent="PresentationFX"]
+material = SubResource("ShaderMaterial_vignette")
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+
+[node name="Corruption" type="ColorRect" parent="PresentationFX"]
+material = SubResource("ShaderMaterial_corruption")
+visible = false
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+
+[node name="Chromatic" type="ColorRect" parent="PresentationFX"]
+material = SubResource("ShaderMaterial_chromatic")
+visible = false
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+
+[node name="BannerBand" type="ColorRect" parent="PresentationFX"]
+offset_left = -300.0
+offset_top = 447.0
+offset_right = -100.0
+offset_bottom = 565.0
+color = Color(0.419608, 0.780392, 1, 0.13)
+mouse_filter = 2
+
+[node name="Banner" type="Label" parent="PresentationFX"]
+modulate = Color(1, 1, 1, 0)
+offset_left = 660.0
+offset_top = 455.0
+offset_right = 1260.0
+offset_bottom = 557.0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0.0392157, 0.054902, 0.0784314, 1)
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 48
+horizontal_alignment = 1
+vertical_alignment = 1

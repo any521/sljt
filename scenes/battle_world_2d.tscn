@@ -1,0 +1,95 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/ui/world/battle_world_2d.gd" id="1_world"]
+[ext_resource type="Texture2D" path="res://assets/art/battle/biolab_backdrop.png" id="2_backdrop"]
+[ext_resource type="PackedScene" path="res://scenes/actors/shen_ming.tscn" id="3_hero"]
+[ext_resource type="PackedScene" path="res://scenes/actors/song_mei.tscn" id="4_ally"]
+[ext_resource type="PackedScene" path="res://scenes/actors/kin_variant.tscn" id="5_enemy"]
+[ext_resource type="PackedScene" path="res://scenes/environment/battle_lighting.tscn" id="6_lighting"]
+
+[node name="BattleWorld2D" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+script = ExtResource("1_world")
+
+[node name="Environment" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+
+[node name="Backdrop" type="TextureRect" parent="Environment"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+texture_filter = 1
+texture = ExtResource("2_backdrop")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Lighting" parent="Environment" instance=ExtResource("6_lighting")]
+layout_mode = 0
+
+[node name="Gameplay" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+
+[node name="Actors" type="Control" parent="Gameplay"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+
+[node name="SongMei" parent="Gameplay/Actors" instance=ExtResource("4_ally")]
+layout_mode = 0
+offset_left = 404.0
+offset_top = 407.0
+offset_right = 538.85
+offset_bottom = 625.55
+z_index = 0
+
+[node name="ShenMing" parent="Gameplay/Actors" instance=ExtResource("3_hero")]
+layout_mode = 0
+offset_left = 590.0
+offset_top = 433.0
+offset_right = 727.6
+offset_bottom = 652.3
+z_index = 1
+
+[node name="KinVariant1" parent="Gameplay/Actors" instance=ExtResource("5_enemy")]
+layout_mode = 0
+offset_left = 1185.0
+offset_top = 433.0
+offset_right = 1383.9
+offset_bottom = 652.3
+z_index = 1
+
+[node name="KinVariant2" parent="Gameplay/Actors" instance=ExtResource("5_enemy")]
+layout_mode = 0
+offset_left = 1430.0
+offset_top = 407.0
+offset_right = 1628.9
+offset_bottom = 626.3
+z_index = 0
+
+[node name="WorldVFX" type="Node2D" parent="Gameplay"]
+
+[node name="Projectiles" type="Node2D" parent="Gameplay/WorldVFX"]
+
+[node name="Impacts" type="Node2D" parent="Gameplay/WorldVFX"]
+
+[node name="Decals" type="Node2D" parent="Gameplay"]
+
+[node name="Targeting" type="Node2D" parent="Gameplay"]
+
+[editable path="Environment/Lighting"]
+[editable path="Gameplay/Actors/SongMei"]
+[editable path="Gameplay/Actors/ShenMing"]
+[editable path="Gameplay/Actors/KinVariant1"]
+[editable path="Gameplay/Actors/KinVariant2"]

@@ -1,0 +1,96 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Shader" path="res://src/ui/effects/shaders/volumetric_beams.gdshader" id="1_beams"]
+[ext_resource type="Shader" path="res://src/ui/effects/shaders/atmosphere_fog.gdshader" id="2_fog"]
+
+[sub_resource type="Gradient" id="Gradient_cyan"]
+offsets = PackedFloat32Array(0.0, 0.45, 1.0)
+colors = PackedColorArray(0.32, 0.82, 1.0, 0.72, 0.08, 0.35, 0.55, 0.30, 0.0, 0.0, 0.0, 0.0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture_cyan"]
+gradient = SubResource("Gradient_cyan")
+width = 512
+height = 512
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_magenta"]
+offsets = PackedFloat32Array(0.0, 0.5, 1.0)
+colors = PackedColorArray(0.92, 0.22, 0.64, 0.70, 0.40, 0.06, 0.28, 0.28, 0.0, 0.0, 0.0, 0.0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture_magenta"]
+gradient = SubResource("Gradient_magenta")
+width = 512
+height = 512
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_beams"]
+shader = ExtResource("1_beams")
+shader_parameter/beam_color = Color(0.18, 0.62, 0.85, 1)
+shader_parameter/intensity = 0.1
+shader_parameter/beam_width = 0.16
+shader_parameter/beam_angle = -0.18
+shader_parameter/falloff = 1.8
+shader_parameter/motion_speed = 0.08
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fog"]
+shader = ExtResource("2_fog")
+shader_parameter/fog_color = Color(0.06, 0.22, 0.29, 1)
+shader_parameter/density = 0.055
+shader_parameter/drift_speed = 0.025
+
+[node name="BattleLighting" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+
+[node name="CanvasTone" type="CanvasModulate" parent="."]
+color = Color(0.88, 0.93, 1, 1)
+
+[node name="PracticalLights" type="Node2D" parent="."]
+
+[node name="LeftCyanKey" type="PointLight2D" parent="PracticalLights"]
+position = Vector2(430, 360)
+energy = 0.32
+texture = SubResource("GradientTexture_cyan")
+texture_scale = 2.2
+
+[node name="CenterCyanFill" type="PointLight2D" parent="PracticalLights"]
+position = Vector2(980, 330)
+energy = 0.22
+texture = SubResource("GradientTexture_cyan")
+texture_scale = 2.6
+
+[node name="EnemyMagentaRim" type="PointLight2D" parent="PracticalLights"]
+position = Vector2(1570, 360)
+energy = 0.30
+texture = SubResource("GradientTexture_magenta")
+texture_scale = 2.0
+
+[node name="Atmosphere" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 760.0
+mouse_filter = 2
+
+[node name="VolumetricBeams" type="ColorRect" parent="Atmosphere"]
+material = SubResource("ShaderMaterial_beams")
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 760.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="Fog" type="ColorRect" parent="Atmosphere"]
+material = SubResource("ShaderMaterial_fog")
+layout_mode = 0
+offset_top = 180.0
+offset_right = 1920.0
+offset_bottom = 760.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)

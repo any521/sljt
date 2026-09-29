@@ -1,0 +1,199 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1536" viewBox="0 0 2048 1536" shape-rendering="geometricPrecision">
+<defs><linearGradient id="board" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#101923"/><stop offset="1" stop-color="#05080d"/></linearGradient>
+    <pattern id="micro" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#2b536e" stroke-width="1" opacity=".14"/></pattern></defs>
+<rect width="2048" height="1536" fill="url(#board)"/><rect width="2048" height="1536" fill="url(#micro)"/>
+<path d="M 44 42 H 2004 V 1494 H 44 Z" fill="none" stroke="#1e3a52" stroke-width="4"/>
+<path d="M 44 145 V 42 H 155 M 1893 42 H 2004 V 145" fill="none" stroke="#6bc7ff" stroke-width="6"/>
+<text x="92" y="103" fill="#e0e8f0" font-size="34" font-weight="600" letter-spacing="4" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">ARKHAM // 2.5D 战斗 HUD 组件</text>
+<text x="92" y="137" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="3" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">INDUSTRIAL SHIP SYSTEMS / UI ASSET KIT 01</text>
+<text x="1952" y="104" fill="#6bc7ff" font-size="16" font-weight="600" letter-spacing="2" text-anchor="end" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">1920 × 1080</text>
+<g transform="translate(90 210)">
+<path d="M 29 6 H 501 L 525 30 V 136 L 501 160 H 29 L 5 136 V 30 Z" fill="#020407" opacity=".72"/>
+<path d="M 24 0 H 496 L 520 24 V 130 L 496 154 H 24 L 0 130 V 24 Z" fill="#111620" fill-opacity="0.92" stroke="#2b536e" stroke-width="3"/>
+<path d="M 34 6 H 472" stroke="#6bc7ff" stroke-width="3" opacity=".92"/>
+<path d="M 8 126 V 30" stroke="#3a82b2" stroke-width="2" opacity=".65"/>
+<polygon points="490,146 510,126 510,142 506,146" fill="#6bc7ff" opacity=".65"/>
+<circle cx="19" cy="19" r="4" fill="#05080d" stroke="#8592a0" stroke-width="2"/>
+<path d="M 32 30 H 122 L 142 50 V 124 H 32 Z" fill="#070b11" stroke="#3a82b2" stroke-width="3"/>
+<circle cx="87" cy="77" r="31" fill="#0a1520" stroke="#6bc7ff" stroke-width="3"/>
+<path d="M 62 106 L 71 84 L 78 89 L 87 67 L 95 89 L 105 82 L 113 106" fill="none" stroke="#6bc7ff" stroke-width="5"/>
+<path d="M 165 48 H 486" stroke="#0a0e14" stroke-width="23"/>
+<path d="M 165 48 H 433" stroke="#d64440" stroke-width="13"/>
+<path d="M 165 48 H 433" stroke="#ff7b70" stroke-width="3" opacity=".8"/>
+<path d="M 166 91 H 350" stroke="#0a0e14" stroke-width="17"/>
+<path d="M 166 91 H 286" stroke="#3a82b2" stroke-width="9"/>
+<path d="M 377 82 L 403 82 L 413 92 L 403 111 L 377 111 L 367 92 Z" fill="#1e3a52" stroke="#b2e8ff" stroke-width="2"/>
+<path d="M 426 82 L 452 82 L 462 92 L 452 111 L 426 111 L 416 92 Z" fill="#e8a830" stroke="#ffdc82" stroke-width="2"/>
+<path d="M 475 82 L 496 82 V 111 H 475 L 465 92 Z" fill="#e8a830" stroke="#ffdc82" stroke-width="2"/>
+<path d="M 154 127 H 340" stroke="#8592a0" stroke-width="2" stroke-dasharray="5 8" opacity=".7"/>
+</g>
+<g transform="translate(670 210)">
+<path d="M 21 6 H 379 L 395 22 V 76 L 379 92 H 21 L 5 76 V 22 Z" fill="#020407" opacity=".72"/>
+<path d="M 16 0 H 374 L 390 16 V 70 L 374 86 H 16 L 0 70 V 16 Z" fill="#111620" fill-opacity="0.88" stroke="#2b536e" stroke-width="3"/>
+<path d="M 26 6 H 350" stroke="#6bc7ff" stroke-width="3" opacity=".92"/>
+<path d="M 8 66 V 22" stroke="#3a82b2" stroke-width="2" opacity=".65"/>
+<polygon points="360,78 380,58 380,74 376,78" fill="#6bc7ff" opacity=".65"/>
+<circle cx="19" cy="19" r="4" fill="#05080d" stroke="#8592a0" stroke-width="2"/>
+<circle cx="48" cy="43" r="24" fill="#07111a" stroke="#6bc7ff" stroke-width="3"/>
+<path d="M 33 48 L 44 34 L 50 43 L 62 29 L 56 48 L 66 48" fill="none" stroke="#b2e8ff" stroke-width="4"/>
+<path d="M 96 35 H 125 L 120 51 H 91 Z" fill="#6bc7ff" opacity=".96" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 142 35 H 171 L 166 51 H 137 Z" fill="#6bc7ff" opacity=".96" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 188 35 H 217 L 212 51 H 183 Z" fill="#6bc7ff" opacity=".96" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 234 35 H 263 L 258 51 H 229 Z" fill="#6bc7ff" opacity=".96" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 280 35 H 309 L 304 51 H 275 Z" fill="#1e3a52" opacity=".55" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 326 35 H 355 L 350 51 H 321 Z" fill="#1e3a52" opacity=".55" stroke="#3a82b2" stroke-width="1"/>
+<path d="M 92 63 H 356" stroke="#3a82b2" stroke-width="2" stroke-dasharray="5 5" opacity=".65"/>
+</g>
+<g transform="translate(1120 210)">
+<path d="M 18 6 H 372 L 385 19 V 47 L 372 60 H 18 L 5 47 V 19 Z" fill="#020407" opacity=".72"/>
+<path d="M 13 0 H 367 L 380 13 V 41 L 367 54 H 13 L 0 41 V 13 Z" fill="#111620" fill-opacity="0.9" stroke="#2b536e" stroke-width="3"/>
+<path d="M 23 6 H 343" stroke="#d64440" stroke-width="3" opacity=".92"/>
+<path d="M 8 37 V 19" stroke="#3a82b2" stroke-width="2" opacity=".65"/>
+<polygon points="350,46 370,26 370,42 366,46" fill="#d64440" opacity=".65"/>
+<circle cx="19" cy="19" r="4" fill="#05080d" stroke="#8592a0" stroke-width="2"/>
+<path d="M 29 17 H 51 L 46 37 H 24 Z" fill="#6bc7ff" opacity="0.92"/>
+<path d="M 62 17 H 84 L 79 37 H 57 Z" fill="#6bc7ff" opacity="0.92"/>
+<path d="M 95 17 H 117 L 112 37 H 90 Z" fill="#6bc7ff" opacity="0.92"/>
+<path d="M 128 17 H 150 L 145 37 H 123 Z" fill="#6bc7ff" opacity="0.92"/>
+<path d="M 161 17 H 183 L 178 37 H 156 Z" fill="#6bc7ff" opacity="0.92"/>
+<path d="M 194 17 H 216 L 211 37 H 189 Z" fill="#e8a830" opacity="0.92"/>
+<path d="M 227 17 H 249 L 244 37 H 222 Z" fill="#e8a830" opacity="0.92"/>
+<path d="M 260 17 H 282 L 277 37 H 255 Z" fill="#e8a830" opacity="0.3"/>
+<path d="M 293 17 H 315 L 310 37 H 288 Z" fill="#d64440" opacity="0.3"/>
+<path d="M 326 17 H 348 L 343 37 H 321 Z" fill="#d64440" opacity="0.3"/>
+<path d="M 284 8 V 46" stroke="#d64440" stroke-width="3"/>
+<path d="M 284 8 L 293 13 L 284 18 Z" fill="#d64440"/>
+</g>
+<g transform="translate(1585 218)">
+<polygon points="28,4 192,4 230,40 230,73 195,108 29,108 4,82 4,30" fill="#080b10" stroke="#72511f" stroke-width="4"/>
+<polygon points="38,15 184,15 217,46 217,68 188,97 37,97 17,76 17,36" fill="#211a0e" stroke="#e8a830" stroke-width="3"/>
+<polygon points="54,27 174,27 203,50 203,63 177,85 52,85 31,68 31,43" fill="#e8a830" opacity=".12"/>
+<path d="M 51 39 H 163 L 183 56 L 163 73 H 51" fill="none" stroke="#ffdc82" stroke-width="4"/>
+<path d="M 165 47 L 181 56 L 165 65" fill="none" stroke="#ffdc82" stroke-width="5"/>
+<circle cx="27" cy="28" r="4" fill="#ffdc82"/>
+<circle cx="205" cy="82" r="4" fill="#e8a830"/>
+</g>
+<text x="90" y="394" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">PLAYER VITALS / COMPACT</text>
+<text x="670" y="394" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">ECHO CHAIN</text>
+<text x="1120" y="394" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">ISOLATION</text>
+<text x="1585" y="394" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">END TURN</text>
+<g transform="translate(90 470)">
+<path d="M 22 6 H 298 L 315 23 V 77 L 298 94 H 22 L 5 77 V 23 Z" fill="#020407" opacity=".72"/>
+<path d="M 17 0 H 293 L 310 17 V 71 L 293 88 H 17 L 0 71 V 17 Z" fill="#111620" fill-opacity="0.92" stroke="#2b536e" stroke-width="3"/>
+<path d="M 27 6 H 269" stroke="#3a82b2" stroke-width="3" opacity=".92"/>
+<path d="M 8 67 V 23" stroke="#3a82b2" stroke-width="2" opacity=".65"/>
+<polygon points="280,80 300,60 300,76 296,80" fill="#3a82b2" opacity=".65"/>
+<circle cx="19" cy="19" r="4" fill="#05080d" stroke="#8592a0" stroke-width="2"/>
+<circle cx="50" cy="44" r="27" fill="#08131d" stroke="#3a82b2" stroke-width="3"/>
+<path d="M 35 61 C 37 48 42 44 50 44 C 59 44 65 49 66 62" fill="#1e3a52"/>
+<circle cx="50" cy="35" r="10" fill="#8592a0"/>
+<path d="M 91 34 H 281" stroke="#070a0f" stroke-width="17"/>
+<path d="M 91 34 H 248" stroke="#3a82b2" stroke-width="9"/>
+<path d="M 92 61 H 226" stroke="#8592a0" stroke-width="3" stroke-dasharray="10 6" opacity=".58"/>
+</g>
+<g transform="translate(465 485)">
+<path d="M 17 16 H 111 L 126 2 H 164 L 179 16 H 273 L 288 31 L 273 54 H 17 L 2 31 Z" fill="#080c12" fill-opacity=".93" stroke="#2b536e" stroke-width="3"/>
+<path d="M 22 29 H 268" stroke="#020407" stroke-width="15"/>
+<path d="M 22 29 H 207" stroke="#d64440" stroke-width="8"/>
+<path d="M 23 18 H 110" stroke="#6bc7ff" stroke-width="2"/>
+<circle cx="145" cy="11" r="8" fill="#e8a830" stroke="#ffdc82" stroke-width="2"/>
+<path d="M 145 5 L 150 16 H 140 Z" fill="#0a0e14"/>
+</g>
+<g transform="translate(870 455)">
+<polygon points="48,3 82,20 93,51 75,82 44,94 14,76 3,45 21,14" fill="#091019" stroke="#d64440" stroke-width="4"/>
+<polygon points="48,10 77,25 85,51 70,76 44,86 20,71 11,45 26,20" fill="#d64440" opacity=".12"/>
+<path d="M 27 70 L 61 28 L 70 24 L 67 34 L 34 75 Z" fill="#d64440" stroke="#ffb0a8" stroke-width="2"/>
+<path d="M 27 55 L 42 70" stroke="#ffb0a8" stroke-width="5"/>
+</g>
+<g transform="translate(1002 455)">
+<polygon points="48,3 82,20 93,51 75,82 44,94 14,76 3,45 21,14" fill="#091019" stroke="#6bc7ff" stroke-width="4"/>
+<polygon points="48,10 77,25 85,51 70,76 44,86 20,71 11,45 26,20" fill="#6bc7ff" opacity=".12"/>
+<path d="M 48 20 L 71 29 V 48 C 71 63 60 73 48 78 C 36 73 25 63 25 48 V 29 Z" fill="#1e3a52" stroke="#b2e8ff" stroke-width="4"/>
+<path d="M 48 27 V 69" stroke="#6bc7ff" stroke-width="3"/>
+</g>
+<g transform="translate(1134 455)">
+<polygon points="48,3 82,20 93,51 75,82 44,94 14,76 3,45 21,14" fill="#091019" stroke="#c7479e" stroke-width="4"/>
+<polygon points="48,10 77,25 85,51 70,76 44,86 20,71 11,45 26,20" fill="#c7479e" opacity=".12"/>
+<path d="M 66 31 C 48 19 26 35 31 53 C 36 70 60 74 69 57 C 75 45 66 37 55 40 C 44 43 44 56 53 59" fill="none" stroke="#ff9edc" stroke-width="6"/>
+<circle cx="51" cy="51" r="5" fill="#c7479e"/>
+</g>
+<g transform="translate(1266 455)">
+<polygon points="48,3 82,20 93,51 75,82 44,94 14,76 3,45 21,14" fill="#091019" stroke="#e8a830" stroke-width="4"/>
+<polygon points="48,10 77,25 85,51 70,76 44,86 20,71 11,45 26,20" fill="#e8a830" opacity=".12"/>
+<path d="M 19 49 Q 48 22 77 49 Q 48 76 19 49 Z" fill="#211a0e" stroke="#ffdc82" stroke-width="4"/>
+<circle cx="48" cy="49" r="12" fill="#e8a830"/>
+<circle cx="48" cy="49" r="5" fill="#0a0e14"/>
+</g>
+<g transform="translate(1450 468)">
+<polygon points="75,40 57.5,70.31 22.5,70.31 5,40 22.5,9.69 57.5,9.69" fill="#091019" stroke="#3a82b2" stroke-width="3"/>
+<circle cx="40" cy="40" r="13" fill="none" stroke="#b2e8ff" stroke-width="5" stroke-dasharray="8 4"/>
+<circle cx="40" cy="40" r="5" fill="#6bc7ff"/>
+</g>
+<g transform="translate(1580 462)">
+<polygon points="81,40 64.5,68.58 31.5,68.58 15,40 31.5,11.42 64.5,11.42" fill="#091019" stroke="#d64440" stroke-width="3"/>
+<path d="M 48 18 C 32 38 33 58 48 62 C 63 58 64 38 48 18 Z" fill="#d64440"/>
+<polygon points="177,40 160.5,68.58 127.5,68.58 111,40 127.5,11.42 160.5,11.42" fill="#091019" stroke="#e8a830" stroke-width="3"/>
+<path d="M 135 15 L 148 34 L 139 40 L 154 64" fill="none" stroke="#e8a830" stroke-width="6"/>
+<polygon points="273,40 256.5,68.58 223.5,68.58 207,40 223.5,11.42 256.5,11.42" fill="#091019" stroke="#6bc7ff" stroke-width="3"/>
+<path d="M 222 27 L 240 18 L 258 27 V 52 L 240 63 L 222 52 Z" fill="#6bc7ff" opacity=".7"/>
+<polygon points="369,40 352.5,68.58 319.5,68.58 303,40 319.5,11.42 352.5,11.42" fill="#091019" stroke="#c7479e" stroke-width="3"/>
+<path d="M 328 18 H 344 M 331 21 V 34 L 320 55 Q 336 68 352 55 L 341 34 V 21" fill="none" stroke="#c7479e" stroke-width="5"/>
+<polygon points="465,40 448.5,68.58 415.5,68.58 399,40 415.5,11.42 448.5,11.42" fill="#091019" stroke="#b2e8ff" stroke-width="3"/>
+<path d="M 414 48 Q 403 31 419 23 Q 433 17 439 31 M 450 33 Q 461 50 445 58 Q 431 64 425 50" fill="none" stroke="#b2e8ff" stroke-width="7"/>
+</g>
+<text x="90" y="593" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">COMPANION</text>
+<text x="465" y="593" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">WORLD-ANCHORED ENEMY</text>
+<text x="870" y="593" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">INTENTS</text>
+<text x="1450" y="593" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">SYSTEM</text>
+<text x="1580" y="593" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">CONDITION PIPS</text>
+<g transform="translate(88 690) scale(1.36)">
+<path d="M 42 34 L 80 4 H 1020 L 1058 34 L 1094 214 L 1068 246 H 32 L 6 214 Z" fill="#070b11" fill-opacity=".91" stroke="#1e3a52" stroke-width="4"/>
+<path d="M 77 22 H 1023" stroke="#3a82b2" stroke-width="3"/>
+<path d="M 31 201 Q 550 253 1069 201" fill="none" stroke="#6bc7ff" stroke-width="3" opacity=".5"/>
+<path d="M 52 216 Q 550 259 1048 216" fill="none" stroke="#0a0e14" stroke-width="18"/>
+<path d="M 50 44 L 27 66 V 175" fill="none" stroke="#3a82b2" stroke-width="2"/>
+<path d="M 1050 44 L 1073 66 V 175" fill="none" stroke="#3a82b2" stroke-width="2"/>
+<path d="M 237 214 Q 280 224 323 214" fill="none" stroke="#8592a0" stroke-width="3" opacity=".5"/>
+<path d="M 372 214 Q 415 224 458 214" fill="none" stroke="#8592a0" stroke-width="3" opacity=".5"/>
+<path d="M 507 214 Q 550 224 593 214" fill="none" stroke="#8592a0" stroke-width="3" opacity=".5"/>
+<path d="M 642 214 Q 685 224 728 214" fill="none" stroke="#8592a0" stroke-width="3" opacity=".5"/>
+<path d="M 777 214 Q 820 224 863 214" fill="none" stroke="#8592a0" stroke-width="3" opacity=".5"/>
+</g>
+<g transform="translate(1632 644) scale(.82)">
+<path d="M 5 55 V 20 L 20 5 H 62 M 178 5 H 220 L 235 20 V 55 M 235 285 V 320 L 220 335 H 178 M 62 335 H 20 L 5 320 V 285" fill="none" stroke="#6bc7ff" stroke-width="9"/>
+<path d="M 21 68 V 34 L 34 21 H 69 M 171 21 H 206 L 219 34 V 68 M 219 272 V 306 L 206 319 H 171 M 69 319 H 34 L 21 306 V 272" fill="none" stroke="#b2e8ff" stroke-width="3" opacity=".75"/>
+<path d="M 92 13 H 148 M 92 327 H 148" stroke="#e8a830" stroke-width="4"/>
+</g>
+<text x="90" y="1064" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">RECESSED CARD TRAY / FIVE REGISTRATION SLOTS</text>
+<text x="1632" y="951" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">CARD FOCUS</text>
+<g transform="translate(90 1150)">
+<path d="M 29 6 H 411 L 435 30 V 262 L 411 286 H 29 L 5 262 V 30 Z" fill="#020407" opacity=".72"/>
+<path d="M 24 0 H 406 L 430 24 V 256 L 406 280 H 24 L 0 256 V 24 Z" fill="#111620" fill-opacity="0.92" stroke="#2b536e" stroke-width="3"/>
+<path d="M 34 6 H 382" stroke="#e8a830" stroke-width="3" opacity=".92"/>
+<path d="M 8 252 V 30" stroke="#3a82b2" stroke-width="2" opacity=".65"/>
+<polygon points="400,272 420,252 420,268 416,272" fill="#e8a830" opacity=".65"/>
+<circle cx="19" cy="19" r="4" fill="#05080d" stroke="#8592a0" stroke-width="2"/>
+<path d="M 34 18 H 193.5" stroke="#8592a0" stroke-width="4"/>
+<path d="M 30 65 H 400" stroke="#2b536e" stroke-width="2"/>
+<path d="M 33 92 H 366 M 33 118 H 385 M 33 144 H 332 M 33 188 H 375 M 33 214 H 352" stroke="#8592a0" stroke-width="7" opacity=".32"/>
+<path d="M 292 238 H 391 L 405 252 L 391 266 H 292 L 279 252 Z" fill="#211a0e" stroke="#e8a830" stroke-width="2"/>
+</g>
+<text x="584" y="1194" fill="#e0e8f0" font-size="24" font-weight="600" letter-spacing="3" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">视觉原则</text>
+<text x="584" y="1234" fill="#8592a0" font-size="18" font-weight="600" letter-spacing="1" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">• 中央 3D 战场保持无遮挡</text>
+<text x="584" y="1268" fill="#8592a0" font-size="18" font-weight="600" letter-spacing="1" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">• 角色高度控制在画面 14–18%</text>
+<text x="584" y="1302" fill="#8592a0" font-size="18" font-weight="600" letter-spacing="1" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">• HUD 只使用工程蓝 / 琥珀 / 危险红</text>
+<text x="584" y="1336" fill="#8592a0" font-size="18" font-weight="600" letter-spacing="1" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">• 怪物有机形态只进入世界，不侵入 UI 框架</text>
+<text x="584" y="1370" fill="#8592a0" font-size="18" font-weight="600" letter-spacing="1" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">• 敌方意图与血条通过世界坐标投影贴近目标</text>
+<path d="M 584 1408 H 1912" stroke="#2b536e" stroke-width="2"/>
+<text x="584" y="1448" fill="#8592a0" font-size="14" font-weight="600" letter-spacing="2" text-anchor="start" font-family="Microsoft YaHei, Noto Sans SC, sans-serif">PALETTE</text>
+<path d="M 714 1424 H 796 L 808 1436 L 796 1460 H 714 L 704 1448 V 1436 Z" fill="#0a0e14" stroke="#314c5f" stroke-width="2"/>
+<path d="M 826 1424 H 908 L 920 1436 L 908 1460 H 826 L 816 1448 V 1436 Z" fill="#111620" stroke="#314c5f" stroke-width="2"/>
+<path d="M 938 1424 H 1020 L 1032 1436 L 1020 1460 H 938 L 928 1448 V 1436 Z" fill="#1e3a52" stroke="#314c5f" stroke-width="2"/>
+<path d="M 1050 1424 H 1132 L 1144 1436 L 1132 1460 H 1050 L 1040 1448 V 1436 Z" fill="#3a82b2" stroke="#314c5f" stroke-width="2"/>
+<path d="M 1162 1424 H 1244 L 1256 1436 L 1244 1460 H 1162 L 1152 1448 V 1436 Z" fill="#6bc7ff" stroke="#314c5f" stroke-width="2"/>
+<path d="M 1274 1424 H 1356 L 1368 1436 L 1356 1460 H 1274 L 1264 1448 V 1436 Z" fill="#b2e8ff" stroke="#314c5f" stroke-width="2"/>
+<path d="M 1386 1424 H 1468 L 1480 1436 L 1468 1460 H 1386 L 1376 1448 V 1436 Z" fill="#e8a830" stroke="#314c5f" stroke-width="2"/>
+<path d="M 1498 1424 H 1580 L 1592 1436 L 1580 1460 H 1498 L 1488 1448 V 1436 Z" fill="#ffdc82" stroke="#314c5f" stroke-width="2"/>
+<path d="M 1610 1424 H 1692 L 1704 1436 L 1692 1460 H 1610 L 1600 1448 V 1436 Z" fill="#d64440" stroke="#314c5f" stroke-width="2"/>
+<path d="M 1722 1424 H 1804 L 1816 1436 L 1804 1460 H 1722 L 1712 1448 V 1436 Z" fill="#c7479e" stroke="#314c5f" stroke-width="2"/>
+</svg>

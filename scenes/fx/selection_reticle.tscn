@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/ui/widgets/selection_reticle.gd" id="1_reticle"]
+
+[node name="SelectionReticle" type="Control"]
+offset_right = 168.0
+offset_bottom = 168.0
+mouse_filter = 2
+script = ExtResource("1_reticle")

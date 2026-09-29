@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="430" height="280" viewBox="0 0 430 280" shape-rendering="geometricPrecision">
+<defs></defs>
+<path d="M 29 6 H 411 L 435 30 V 262 L 411 286 H 29 L 5 262 V 30 Z" fill="#020407" opacity=".72"/>
+<path d="M 24 0 H 406 L 430 24 V 256 L 406 280 H 24 L 0 256 V 24 Z" fill="#111620" fill-opacity="0.92" stroke="#2b536e" stroke-width="3"/>
+<path d="M 34 6 H 382" stroke="#e8a830" stroke-width="3" opacity=".92"/>
+<path d="M 8 252 V 30" stroke="#3a82b2" stroke-width="2" opacity=".65"/>
+<polygon points="400,272 420,252 420,268 416,272" fill="#e8a830" opacity=".65"/>
+<circle cx="19" cy="19" r="4" fill="#05080d" stroke="#8592a0" stroke-width="2"/>
+<path d="M 34 18 H 193.5" stroke="#8592a0" stroke-width="4"/>
+<path d="M 30 65 H 400" stroke="#2b536e" stroke-width="2"/>
+<path d="M 33 92 H 366 M 33 118 H 385 M 33 144 H 332 M 33 188 H 375 M 33 214 H 352" stroke="#8592a0" stroke-width="7" opacity=".32"/>
+<path d="M 292 238 H 391 L 405 252 L 391 266 H 292 L 279 252 Z" fill="#211a0e" stroke="#e8a830" stroke-width="2"/>
+</svg>

@@ -1,0 +1,26 @@
+{
+  "cell": 32,
+  "cols": 8,
+  "rows": 3,
+  "frames": {
+    "force_shield_plus": {"x": 192, "y": 32},
+    "calibrate_shot": {"x": 0, "y": 0},
+    "flesh_reshape": {"x": 224, "y": 0},
+    "framework_scan": {"x": 96, "y": 0},
+    "overclock": {"x": 128, "y": 0},
+    "lacerate_plus": {"x": 160, "y": 32},
+    "framework_scan_plus": {"x": 224, "y": 32},
+    "lacerate": {"x": 160, "y": 0},
+    "logic_lock": {"x": 96, "y": 32},
+    "parasite_spore": {"x": 192, "y": 0},
+    "sacrifice_blood": {"x": 32, "y": 32},
+    "flesh_reshape_plus": {"x": 64, "y": 64},
+    "logic_lock_plus": {"x": 32, "y": 64},
+    "precision_strike_plus": {"x": 0, "y": 64},
+    "calibrate_shot_plus": {"x": 128, "y": 32},
+    "abyss_gaze": {"x": 0, "y": 32},
+    "force_shield": {"x": 64, "y": 0},
+    "precision_strike": {"x": 32, "y": 0},
+    "emergency_medkit": {"x": 64, "y": 32}
+  }
+}

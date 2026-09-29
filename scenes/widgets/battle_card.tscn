@@ -1,0 +1,133 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/ui/widgets/battle_card.gd" id="1_ruhja"]
+[ext_resource type="Texture2D" path="res://assets/art/cards/cards_art.png" id="3_yfn21"]
+[ext_resource type="Script" path="res://src/ui/widgets/pixel_frame.gd" id="4_pixel"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/card/card_corner_cut.png" id="5_corner"]
+[ext_resource type="Script" path="res://src/ui/widgets/card_corners.gd" id="6_corners"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/tray/edge2_h_cut.png" id="7_edgeh"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/tray/edge2_v_cut.png" id="8_edgev"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b42ya"]
+atlas = ExtResource("3_yfn21")
+region = Rect2(0, 0, 32, 32)
+
+[node name="BattleCard" type="Control" unique_id=352237305]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 224.0
+offset_bottom = 296.0
+pivot_offset = Vector2(112, 148)
+texture_filter = 1
+script = ExtResource("1_ruhja")
+
+[node name="Frame" type="TextureRect" parent="." unique_id=480939106]
+texture_filter = 1
+layout_mode = 0
+offset_right = 224.0
+offset_bottom = 296.0
+mouse_filter = 2
+expand_mode = 1
+script = ExtResource("4_pixel")
+variant = "card"
+
+[node name="Art" type="TextureRect" parent="." unique_id=1509116568]
+texture_filter = 1
+layout_mode = 0
+offset_left = 48.0
+offset_top = 44.0
+offset_right = 176.0
+offset_bottom = 172.0
+mouse_filter = 2
+texture = SubResource("AtlasTexture_b42ya")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Cost" type="Label" parent="." unique_id=1204818193]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 42.0
+offset_bottom = 42.0
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.8627451, 0.50980395, 1)
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Name" type="Label" parent="." unique_id=282118685]
+layout_mode = 0
+offset_left = 44.0
+offset_top = 8.0
+offset_right = 176.0
+offset_bottom = 40.0
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.8784314, 0.9098039, 0.9411765, 1)
+text = "卡牌名称"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Index" type="Label" parent="." unique_id=1857692597]
+layout_mode = 0
+offset_left = 180.0
+offset_top = 12.0
+offset_right = 208.0
+offset_bottom = 36.0
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.65882355, 0.78431374, 0.8784314, 1)
+text = "1"
+horizontal_alignment = 2
+
+[node name="Type" type="Label" parent="." unique_id=262658934]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 187.0
+offset_right = 204.0
+offset_bottom = 210.0
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.52156866, 0.57254905, 0.627451, 1)
+text = "规程 / 攻击"
+
+[node name="Description" type="Label" parent="." unique_id=2061663361]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 205.0
+offset_right = 204.0
+offset_bottom = 267.0
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.8784314, 0.9098039, 0.9411765, 1)
+text = "造成 6 点伤害"
+autowrap_mode = 3
+
+[node name="Badge" type="Label" parent="." unique_id=791923880]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 272.0
+offset_right = 204.0
+offset_bottom = 296.0
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.41960785, 0.78039217, 1, 1)
+text = "建立回声基准"
+
+[node name="Dim" type="ColorRect" parent="." unique_id=1794381060]
+visible = false
+layout_mode = 0
+offset_right = 224.0
+offset_bottom = 296.0
+mouse_filter = 2
+color = Color(0.025, 0.035, 0.05, 0.42)
+[node name="Corners" type="Control" parent="."]
+layout_mode = 0
+offset_right = 224.0
+offset_bottom = 296.0
+mouse_filter = 2
+texture_filter = 1
+script = ExtResource("6_corners")
+corners_texture = ExtResource("5_corner")
+corner_scale = 0.46
+corner_inset = -8.0
+edge_texture = ExtResource("7_edgeh")
+edge_v_texture = ExtResource("8_edgev")
+edge_scale = 0.16
+edge_inset = 4.0
+corner_gap = 8.0

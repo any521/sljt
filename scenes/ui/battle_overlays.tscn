@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[node name="Overlays" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+z_index = 30
+editor_description = "目标热区、战斗特效、弹窗和结算遮罩。"
+
+[node name="WorldTargets" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+editor_description = "敌人点击与拖牌命中热区。"
+
+[node name="Effects" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+editor_description = "准心、粒子、飘字、屏幕闪光与命中特效。"
+
+[node name="Menus" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+z_index = 180
+editor_description = "战斗记录、规则、牌堆和表现设置。"
+
+[node name="Results" type="Control" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 2
+z_index = 220
+editor_description = "胜利、失败与同化结算。"
