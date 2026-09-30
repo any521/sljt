@@ -20,6 +20,9 @@ func check(value: bool, message: String) -> void:
 
 
 func shoot(name: String) -> void:
+	if DisplayServer.get_name() == "headless":
+		print("CAPTURE %s: headless 模式跳过截图" % name)
+		return
 	RenderingServer.force_draw(false)
 	await process_frame
 	var image := root.get_texture().get_image()
@@ -43,11 +46,23 @@ func settle(view, max_frames: int = 300) -> void:
 
 func capture() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR))
+	root.size = Vector2i(1920, 1080)
 	var scene := MainScene.instantiate()
 	root.add_child(scene)
+	# 本脚本专测战斗表现；正式入口先显示路线图。
+	scene.get_node('TowerMap').hide()
+	scene.get_node('CombatView').show()
+	scene.get_node('CombatView').process_mode = Node.PROCESS_MODE_INHERIT
+	scene.get_node('CombatView').start_new_combat()
+	var view = scene.get_node("CombatView")
+	if view.juice.enabled("card_animations"):
+		await create_timer(0.10, true, false, true).timeout
+		var dealt_now: int = 0
+		for card_view in view.card_views:
+			if card_view.modulate.a > 0.05: dealt_now += 1
+		check(dealt_now <= 1, "回合开始从牌库逐张发牌")
 	for _frame in 90:
 		await process_frame
-	var view = scene.get_node("CombatView")
 	# 把真实光标移开手牌区：否则它可能正停在某张牌上，触发 mouse_entered
 	# 给那张牌悬停缩放，导致"非悬停牌保持基准缩放"这类断言假失败。
 	Input.warp_mouse(Vector2(20, 20))
@@ -55,7 +70,7 @@ func capture() -> void:
 		await process_frame
 	await shoot("interaction-1-idle")
 
-	# ① 手牌版式：应以手牌区中心对齐、左右对称，5 张用 1x 基准缩放。
+	# ① 手牌版式：应以手牌区中心对齐、左右对称，8 张按拥挤档缩放。
 	var hand_transform: Transform2D = view.hand_box.get_global_transform()
 	var left := 1e9
 	var right := -1e9
@@ -68,7 +83,7 @@ func capture() -> void:
 	print("LAYOUT tray_center=%.1f cards=[%.1f..%.1f] center=%.1f scale=%.3f" % [
 		tray_center, left, right, (left + right) * 0.5, view.card_views[0].base_scale])
 	check(absf((left + right) * 0.5 - tray_center) < 1.0, "手牌整体居中于卡槽")
-	check(view.card_views.size() == 5 and absf(view.card_views[0].base_scale - 0.74) < 0.001, "5 张手牌使用 1x 基准缩放")
+	check(view.card_views.size() == 5 and absf(view.card_views[0].base_scale - 0.94) < 0.001, "起手 5 张使用基准缩放")
 
 	# ② 悬停：中间牌抬高放大，两侧保持基准；移开必须回位。
 	var hovered = view.card_views[2]
@@ -100,7 +115,9 @@ func capture() -> void:
 		await process_frame
 	view._update_reticles()
 	await shoot("interaction-3-targeting")
-	check(view._arrow.visible, "拖拽时指向箭头可见")
+	check(not view._arrow.visible, "点击预览不会触发拖拽箭头")
+	check(view._preview_card.visible and view._preview_card.scale.x > 1.5, "点击卡牌后中央预览放大")
+	check(card.position.distance_to(card.home) < 1.5, "点击预览时原卡留在手牌槽")
 	check(view._reticles[0].selected and view._reticles[0].modulate.a > 0.9, "目标敌人准星已点亮")
 	check(absf(view._reticles[0].position.x + view._reticles[0].size.x * 0.5 - view._enemy_points[0].x) < 1.0, "准星对齐敌人锚点")
 	var base_threshold: float = view.size.y * 0.75
@@ -108,6 +125,14 @@ func capture() -> void:
 	check(absf(view._play_zone_threshold() - maxf(base_threshold, view.size.y - 60.0 - 100.0)) < 0.01, "起点在基准线下方：阈值 = 起点 − 100")
 	view._drag_start_y = 400.0
 	check(absf(view._play_zone_threshold() - (400.0 - 50.0)) < 0.01, "起点在基准线上方：阈值 = 起点 − 50")
+	view._cancel_selection()
+	view.pointer_override = card.global_position + card.size * 0.5
+	view._on_card_pressed(card)
+	view.pointer_override = Vector2(1270, 470)
+	view._update_drag()
+	check(view._arrow.visible and view._dragging, "拖动时箭头跟随指针")
+	check(card.position.distance_to(card.home) < 1.5, "拖动时原卡仍留在手牌槽")
+	view._cancel_selection()
 
 	# ④ 队列停放：换成固定卡（自身牌，不触发拔枪动画），避免发牌随机带来的时序漂移。
 	view._cancel_selection()
@@ -115,6 +140,7 @@ func capture() -> void:
 		await process_frame
 	var db = root.get_node("CardDB")
 	var probe = CardInstance.new(db.get_card("force_shield"), 99999)
+	check(not view._card_has_direct_damage(probe), "护盾牌使用蓝色消散分支")
 	view.combat.hand.clear()
 	view.combat.hand.append(probe)
 	view._sync_hand(view.combat.hand, false)
@@ -125,7 +151,13 @@ func capture() -> void:
 	print("QUEUE depth=%d flight_children=%d" % [view._play_queue_depth, view.flight_layer.get_child_count()])
 	check(view._play_queue_depth >= 1 or view.flight_layer.get_child_count() > 0, "出牌后卡牌进入飞行动画层（队列停放）")
 	await shoot("interaction-4-queue")
+	for _frame in 30:
+		await process_frame
+	await shoot("interaction-4b-blue-dissolve")
 	for _frame in 90:
+		await process_frame
+	for _frame in 400:
+		if not view._busy: break
 		await process_frame
 	await shoot("interaction-5-resolved")
 	check(not view._arrow.visible, "出牌后箭头收起")
@@ -143,9 +175,18 @@ func capture() -> void:
 	for _frame in 8:
 		await process_frame
 	await shoot("interaction-6-vfx")
-	check(true, "特效总览截图已生成")
+	check(true, "特效总览调用完成")
+	view._toggle_settings()
+	var settings_buttons: Array[Node] = []
+	for node in view._settings_panel.get_children():
+		if node is Button: settings_buttons.append(node)
+	check(settings_buttons.any(func(button): return button.text == "重新开始战斗") and settings_buttons.any(func(button): return button.text == "退出游戏"), "设置中可重新开始战斗或退出游戏")
+	await shoot("interaction-7-settings")
+	view._toggle_settings()
 
 	scene.queue_free()
 	await process_frame
 	print("交互验证：%s" % ("全部通过" if failed == 0 else "%d 项失败" % failed))
 	quit(0 if failed == 0 else 1)
+
+

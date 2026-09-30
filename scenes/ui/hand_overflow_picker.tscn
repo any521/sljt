@@ -1,0 +1,75 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/ui/widgets/hand_overflow_picker.gd" id="1_picker"]
+[ext_resource type="PackedScene" path="res://scenes/widgets/hand_overflow_card_slot.tscn" id="2_slot"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.035, 0.049, 0.069, 0.96)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.42, 0.78, 1, 1)
+
+[node name="HandOverflowPicker" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 0
+z_index = 230
+script = ExtResource("1_picker")
+card_slot_prefab = ExtResource("2_slot")
+editor_description = "结束回合时手牌超过 8 张的弃牌选择。Panel、标题、说明和滚动区域均可在编辑器中调整。"
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 0
+color = Color(0.015, 0.025, 0.04, 0.92)
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 130.0
+offset_top = 75.0
+offset_right = 1790.0
+offset_bottom = 975.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+editor_description = "可调整面板大小、位置和边框。"
+
+[node name="Title" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 35.0
+offset_top = 22.0
+offset_right = 1615.0
+offset_bottom = 74.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.42, 0.78, 1, 1)
+theme_override_font_sizes/font_size = 31
+
+[node name="Instruction" type="Label" parent="Panel"]
+layout_mode = 0
+offset_left = 36.0
+offset_top = 78.0
+offset_right = 1616.0
+offset_bottom = 110.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 19
+text = "点击要弃掉的牌；可从旧手牌和新抽的牌中选择。整理到 8 张后自动结束回合。"
+
+[node name="CardScroll" type="ScrollContainer" parent="Panel"]
+layout_mode = 0
+offset_left = 36.0
+offset_top = 132.0
+offset_right = 1624.0
+offset_bottom = 852.0
+mouse_filter = 0
+editor_description = "候选卡区域；卡牌间距和缩放可在根节点的导出属性中调整。"
+
+[node name="CardGrid" type="Control" parent="Panel/CardScroll"]
+custom_minimum_size = Vector2(1560, 700)
+layout_mode = 2
+mouse_filter = 2

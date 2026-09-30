@@ -1,5 +1,5 @@
 extends SceneTree
-## 手牌版式回归：1~10 张手牌都必须
+## 手牌版式回归：1~16 张手牌都必须
 ##   ① 整排居中于可见卡槽
 ##   ② 整排宽度不超出卡槽（自适应压缩生效）
 ##   ③ 左右各留出内边距，不被卡槽边缘裁切
@@ -21,15 +21,22 @@ func check(value: bool, message: String) -> void:
 
 
 func run() -> void:
+	root.size = Vector2i(1920, 1080)
 	var scene := MainScene.instantiate()
 	root.add_child(scene)
+	# 本脚本专测战斗表现；正式入口先显示路线图。
+	scene.get_node('TowerMap').hide()
+	scene.get_node('CharacterSelectPanel').hide()
+	scene.get_node('CombatView').show()
+	scene.get_node('CombatView').process_mode = Node.PROCESS_MODE_INHERIT
+	scene.get_node('CombatView').start_new_combat()
 	for _frame in 60:
 		await process_frame
 	var view = scene.get_node("CombatView")
 	var db = root.get_node("CardDB")
 	var base = db.get_card("force_shield")
 
-	for count in range(1, 11):
+	for count in range(1, 17):
 		view.combat.hand.clear()
 		for i in count:
 			view.combat.hand.append(CardInstance.new(base, 70000 + count * 100 + i))
@@ -68,3 +75,4 @@ func run() -> void:
 	await process_frame
 	print("手牌版式回归：%s" % ("全部通过" if failed == 0 else "%d 项失败" % failed))
 	quit(0 if failed == 0 else 1)
+

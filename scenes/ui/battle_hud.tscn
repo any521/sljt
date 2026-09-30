@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/widgets/crew_status_panel.tscn" id="1_crew"]
 [ext_resource type="Texture2D" path="res://assets/art/characters/shen_mingyan/portrait_shen_ming.png" id="2_shen"]
 [ext_resource type="Texture2D" path="res://assets/art/characters/song_mei/portrait_512.png" id="3_song"]
+[ext_resource type="PackedScene" path="res://scenes/widgets/discard_drop_zone.tscn" id="4_discard"]
 
 [sub_resource type="AtlasTexture" id="Atlas_shen_portrait"]
 atlas = ExtResource("2_shen")
@@ -92,6 +93,12 @@ offset_right = 1920.0
 offset_bottom = 1055.0
 mouse_filter = 2
 editor_description = "结束回合按钮及快捷键提示。"
+
+[node name="DiscardDropZone" parent="TurnControls" instance=ExtResource("4_discard")]
+offset_left = 18.0
+offset_top = 735.0
+offset_right = 243.0
+offset_bottom = 853.0
 
 [node name="Hints" type="Control" parent="."]
 layout_mode = 0

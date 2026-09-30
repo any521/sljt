@@ -1,0 +1,64 @@
+[gd_scene load_steps=7 format=3]
+[ext_resource type="Script" path="res://src/ui/widgets/world_status_bar.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/widgets/status_icon.tscn" id="2"]
+[sub_resource type="StyleBoxFlat" id="Style_panel"]
+bg_color = Color(0.035, 0.049, 0.069, 0.84)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.22, 0.38, 0.48, 0.9)
+[sub_resource type="StyleBoxFlat" id="Style_bar_bg"]
+bg_color = Color(0.06, 0.09, 0.12, 1)
+[sub_resource type="StyleBoxFlat" id="Style_bar_ghost"]
+bg_color = Color(1, 0.55, 0.55, 1)
+[sub_resource type="StyleBoxFlat" id="Style_bar_hp"]
+bg_color = Color(0.89, 0.34, 0.39, 1)
+[node name="WorldStatusBar" type="Panel"]
+offset_right = 144.0
+offset_bottom = 54.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Style_panel")
+script = ExtResource("1")
+status_icon_prefab = ExtResource("2")
+[node name="NameLabel" type="Label" parent="."]
+offset_left = 5.0
+offset_top = 2.0
+offset_right = 139.0
+offset_bottom = 20.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+[node name="HPGhost" type="ProgressBar" parent="."]
+offset_left = 7.0
+offset_top = 22.0
+offset_right = 137.0
+offset_bottom = 28.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("Style_bar_bg")
+theme_override_styles/fill = SubResource("Style_bar_ghost")
+show_percentage = false
+[node name="HPBar" type="ProgressBar" parent="."]
+offset_left = 7.0
+offset_top = 22.0
+offset_right = 137.0
+offset_bottom = 28.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("Style_bar_bg")
+theme_override_styles/fill = SubResource("Style_bar_hp")
+show_percentage = false
+[node name="HPLabel" type="Label" parent="."]
+offset_left = 5.0
+offset_top = 31.0
+offset_right = 139.0
+offset_bottom = 49.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+[node name="StatusRow" type="HBoxContainer" parent="."]
+visible = false
+offset_top = 60.0
+offset_right = 144.0
+offset_bottom = 90.0
+mouse_filter = 2
+theme_override_constants/separation = 4

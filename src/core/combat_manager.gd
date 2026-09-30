@@ -7,8 +7,6 @@ class_name CombatManager
 
 # ---------------------------------------------------------------- 常量
 
-const HAND_LIMIT := 10
-const BASE_DRAW := 5
 const BASE_ENERGY := 3
 const PLAYER_MAX_HP := 70
 
@@ -20,6 +18,7 @@ signal combat_started()
 signal turn_started(turn_number: int, is_player: bool)
 signal energy_changed(current: int, maximum: int)
 signal hand_changed()
+signal overflow_resolved()
 signal piles_changed(draw: int, discard: int, exhaust: int)
 signal card_played(instance: CardInstance)
 signal echo_changed(streak: int, multiplier: float)
@@ -47,6 +46,8 @@ var player_statuses: Dictionary = {}   # strength / weak / vulnerable / shield /
 # 能量
 var energy: int = BASE_ENERGY
 var max_energy: int = BASE_ENERGY
+var character_rules := CharacterRules.new()
+var voluntary_discards_left: int = 0
 
 # 子系统
 var echo := EchoSystem.new()
@@ -87,13 +88,18 @@ func _init(seed_value: int = -1) -> void:
 func start_combat(
 	deck: Array[CardData],
 	enemy_data_list: Array[EnemyData],
-	p_player_hp: int = -1
+	p_player_hp: int = -1,
+	p_character_rules: CharacterRules = null,
+	p_trinkets: Array[String] = []
 ) -> void:
+	if p_character_rules != null:
+		character_rules = p_character_rules
 	player_hp = p_player_hp if p_player_hp >= 0 else player_max_hp
 	player_block = 0
 	player_statuses.clear()
 	turn_number = 0
 	_cards_played_this_turn = 0
+	voluntary_discards_left = character_rules.voluntary_discard_limit
 	echo.reset_combat()
 	isolation.reset()
 
@@ -116,6 +122,12 @@ func start_combat(
 	_emit_piles()
 	_refresh_intents()
 	_start_player_turn()
+	if p_trinkets.has(TrinketCatalog.SPARE_CAPACITOR):
+		energy += 1
+		emit_signal("energy_changed", energy, max_energy)
+	if p_trinkets.has(TrinketCatalog.CERAMIC_PLATE):
+		player_block += 4
+		emit_signal("player_stats_changed")
 
 
 func _make_enemy(ed: EnemyData) -> Dictionary:
@@ -141,6 +153,7 @@ func _start_player_turn() -> void:
 
 	player_block = 0
 	_cards_played_this_turn = 0
+	voluntary_discards_left = character_rules.voluntary_discard_limit
 
 	if isolation.has_stage_6():
 		_add_status(player_statuses, "strength", 1)
@@ -155,7 +168,7 @@ func _start_player_turn() -> void:
 	energy = max_energy
 	emit_signal("energy_changed", energy, max_energy)
 
-	_draw(BASE_DRAW)
+	_draw(character_rules.opening_draw if turn_number == 0 else character_rules.turn_draw)
 	_clear_invalid_corruption()
 
 	emit_signal("turn_started", turn_number, true)
@@ -181,14 +194,18 @@ func _tick_player_statuses() -> void:
 func end_turn() -> void:
 	if phase != Phase.PLAYER_TURN and phase != Phase.PLAYER_ACTING:
 		return
+	if has_hand_overflow():
+		return
 
 	# 阈值 6 代价：每回合结束失去 2 点生命
 	if isolation.has_stage_6():
 		_take_damage_direct(2, "组织共生")
 
-	# 手牌全部弃掉
-	while not hand.is_empty():
-		discard_pile.append(hand.pop_back())
+	# 宋梅按常规弃掉未打出的手牌；沈明保留它们到下一回合。
+	if not character_rules.retain_hand:
+		for card in hand:
+			discard_pile.append(card)
+		hand.clear()
 
 	echo.reset_turn()
 	emit_signal("echo_changed", echo.streak, echo.current_multiplier())
@@ -510,8 +527,6 @@ func on_isolation_threshold(value: int, stage_name: String) -> void:
 
 func _draw(count: int) -> void:
 	for i in count:
-		if hand.size() >= HAND_LIMIT:
-			break
 		if draw_pile.is_empty():
 			_reshuffle()
 		if draw_pile.is_empty():
@@ -519,6 +534,41 @@ func _draw(count: int) -> void:
 		hand.append(draw_pile.pop_back())
 	emit_signal("hand_changed")
 	_emit_piles()
+
+
+## 仅在结束回合时检查；回合中可持有并打出超过此数量的手牌。
+func has_hand_overflow() -> bool:
+	return hand.size() > character_rules.end_turn_hand_limit
+
+
+func overflow_discard_count() -> int:
+	return maxi(0, hand.size() - character_rules.end_turn_hand_limit)
+
+
+func discard_overflow_card(instance: CardInstance) -> bool:
+	if not has_hand_overflow() or not hand.has(instance):
+		return false
+	hand.erase(instance)
+	discard_pile.append(instance)
+	emit_signal("hand_changed")
+	_emit_piles()
+	if not has_hand_overflow():
+		emit_signal("overflow_resolved")
+	return true
+
+
+## 沈明每回合可以主动整理最多两张手牌；这不替代超限选择。
+func discard_from_hand(instance: CardInstance) -> bool:
+	if phase != Phase.PLAYER_TURN and phase != Phase.PLAYER_ACTING:
+		return false
+	if voluntary_discards_left <= 0 or not hand.has(instance):
+		return false
+	hand.erase(instance)
+	discard_pile.append(instance)
+	voluntary_discards_left -= 1
+	emit_signal("hand_changed")
+	_emit_piles()
+	return true
 
 
 func _reshuffle() -> void:
@@ -554,8 +604,8 @@ func _alive_enemies() -> Array[int]:
 func _check_combat_over() -> bool:
 	if isolation.is_assimilated():
 		phase = Phase.ASSIMILATED
-		# 规则约定“同化”是特殊胜利；phase 仍保留独立结局供 UI 展示。
-		emit_signal("combat_ended", true)
+		# 隔离值达到 10 是同化死亡，不能领取地图战斗奖励。
+		emit_signal("combat_ended", false)
 		emit_signal("whisper", "「同化。」")
 		return true
 	if player_hp <= 0:

@@ -18,12 +18,59 @@ func _init() -> void:
 
 func run() -> void:
 	print("\n── 战斗表现集成测试 ──")
-	var view := View.new()
+	var view: View = View.new()
+	view.add_child(preload("res://scenes/ui/battle_overlays.tscn").instantiate())
 	root.add_child(view)
 	await process_frame
 	await process_frame
 	check(view.combat != null, "战斗视图创建 CombatManager")
 	check(view.card_views.size() == 5, "起手创建 5 个卡牌视图")
+	view.pointer_override = view.card_views[0].global_position + view.card_views[0].size * 0.5
+	view._on_card_pressed(view.card_views[0])
+	view._finish_drag()
+	check(view._preview_card.visible and not view._arrow.visible, "点击卡牌只打开中央预览，不出现箭头")
+	view._cancel_selection()
+	view.pointer_override = Vector2.INF
+	var overflow_db = root.get_node("CardDB")
+	view.combat._draw(5)
+	check(not view._overflow_overlay.visible and view.combat.hand.size() == 10, "回合中可暂时持有 10 张牌")
+	view._on_end_turn_pressed()
+	check(view._overflow_overlay.visible and view._overflow_overlay.grid.get_child_count() == 10, "结束回合时展示全部 10 张候选牌")
+	view._on_overflow_card_chosen(view._overflow_overlay.grid.get_child(0).get_node("BattleCard").instance)
+	check(view._overflow_overlay.visible and view.combat.overflow_discard_count() == 1, "弃第一张后继续要求玩家选择")
+	view._on_overflow_card_chosen(view._overflow_overlay.grid.get_child(0).get_node("BattleCard").instance)
+	check(not view._overflow_overlay.visible and view.combat.hand.size() == 8, "选够后关闭面板并保留 8 张手牌")
+	await process_frame
+	view.restart()
+	await process_frame
+	var draw_card := CardInstance.new(overflow_db.get_card("logic_lock_plus"), 70000)
+	view.combat.hand.clear()
+	view.combat.hand.append(draw_card)
+	for i in 7:
+		view.combat.hand.append(CardInstance.new(overflow_db.get_card("calibrate_shot"), 70001 + i))
+	view._sync_hand(view.combat.hand, false)
+	await view._play_card_on(draw_card, -1)
+	check(view.combat.has_hand_overflow() and not view._overflow_overlay.visible, "打出抽二牌后可暂时持有 9 张")
+	view._on_end_turn_pressed()
+	check(view._overflow_overlay.visible, "结束回合时打开弃牌选择")
+	view._on_overflow_card_chosen(view._overflow_overlay.grid.get_child(0).get_node("BattleCard").instance)
+	check(not view._overflow_overlay.visible, "弃一张后自动关闭选择并结束回合")
+	await process_frame
+	view.restart()
+	await process_frame
+	for i in 2:
+		view.combat.hand.append(CardInstance.new(overflow_db.get_card("calibrate_shot"), 81000 + i))
+	view._sync_hand(view.combat.hand, false)
+	await view._on_end_turn_pressed()
+	check(view.combat.hand.size() == 10 and not view._overflow_overlay.visible, "留 7 张到下回合再抽 3 张仍可继续行动")
+	view._on_end_turn_pressed()
+	check(view._overflow_overlay.visible, "再次结束回合时需要整理到 8 张")
+	for i in 2:
+		view._on_overflow_card_chosen(view._overflow_overlay.grid.get_child(0).get_node("BattleCard").instance)
+	check(view.combat.hand.size() == 8 and not view._overflow_overlay.visible, "回合抽牌超限可选弃到 8 张")
+	await process_frame
+	view.restart()
+	await process_frame
 	check(view.enemy_rows.size() == 2, "创建两套独立敌人表现")
 	check(view.battle_world.get_node_or_null("Environment/Backdrop") != null and view.battle_world.backdrop.size.x > 0.0, "场景文件中的战斗背景尺寸有效")
 	var actors := view.battle_world.get_node("Gameplay/Actors")
@@ -82,6 +129,7 @@ func run() -> void:
 	check(view.juice.get_parent() == view.get_node_or_null("Overlays/Effects"), "战斗特效进入 Effects 分组")
 	var authored_main := MainScene.instantiate()
 	check(authored_main.has_node("CombatView/HUD/TopBar") and authored_main.has_node("CombatView/Cards/Hand") and authored_main.has_node("CombatView/Overlays/Menus"), "main.tscn 直接组合可展开的 UI 子场景")
+	check(authored_main.has_node("CombatView/Overlays/Menus/HandOverflowPicker/Panel/CardScroll/CardGrid"), "超限选牌在主场景中保留可编辑节点")
 	authored_main.free()
 	check(view.juice._particles.size() == 128, "粒子池预分配 128 个节点")
 	check(view.juice._numbers.size() == 28, "伤害数字池预分配 28 个标签")
@@ -124,7 +172,10 @@ func run() -> void:
 				timings.damage = Time.get_ticks_msec())
 		await view._play_card_on(attack, 0)
 		check(view.combat.enemies[0].hp < before, "真实出牌链路造成伤害并完成事件回放")
-		check(timings.gun_finished > 0 and timings.damage >= timings.gun_finished, "工程攻击在拔枪动画结束后才结算伤害")
+		if attack.data.id in ["calibrate_shot", "calibrate_shot_plus"]:
+			check(timings.gun_finished == 0 and timings.damage > 0, "校准射击直接结算，不播放拔枪动作")
+		else:
+			check(timings.gun_finished > 0 and timings.damage >= timings.gun_finished, "其他工程攻击在拔枪动画结束后才结算伤害")
 		check(not view.combat.hand.has(attack), "已打出的卡从手牌视觉与逻辑移除")
 	else:
 		check(false, "起手至少存在一张可用攻击牌")

@@ -14,11 +14,27 @@
 [ext_resource type="PackedScene" path="res://scenes/widgets/thought_bubble.tscn" id="12_bubble"]
 [ext_resource type="PackedScene" path="res://scenes/ui/juice.tscn" id="13_juice"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hand_tray.tscn" id="14_tray"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tower_map.tscn" id="15_map"]
+[ext_resource type="PackedScene" path="res://scenes/ui/room_choice_panel.tscn" id="16_choice"]
+[ext_resource type="PackedScene" path="res://scenes/ui/card_list_panel.tscn" id="17_card_list"]
+[ext_resource type="PackedScene" path="res://scenes/ui/character_select_panel.tscn" id="18_character_select"]
+[ext_resource type="PackedScene" path="res://scenes/ui/room_transition.tscn" id="19_room_transition"]
+[ext_resource type="PackedScene" path="res://scenes/widgets/world_status_bar.tscn" id="20_world_status"]
 
 [node name="Main" type="Node2D" unique_id=781703828]
 script = ExtResource("1_main")
 
+[node name="TowerMap" parent="." instance=ExtResource("15_map")]
+
+[node name="RoomChoicePanel" parent="." instance=ExtResource("16_choice")]
+
+[node name="CardListPanel" parent="." instance=ExtResource("17_card_list")]
+
+[node name="CharacterSelectPanel" parent="." instance=ExtResource("18_character_select")]
+
 [node name="CombatView" type="Control" parent="." unique_id=389890534]
+process_mode = 4
+visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_right = 1920.0
@@ -31,6 +47,8 @@ selection_reticle_prefab = ExtResource("11_reticle")
 thought_bubble_prefab = ExtResource("12_bubble")
 juice_prefab = ExtResource("13_juice")
 hand_tray_prefab = ExtResource("14_tray")
+world_status_prefab = ExtResource("20_world_status")
+preview_battle_on_ready = false
 
 [node name="World" type="Control" parent="CombatView" unique_id=798312809]
 anchors_preset = 0
@@ -183,6 +201,8 @@ theme_override_font_sizes/font_size = 11
 [node name="Dim" parent="CombatView/CardTemplate" index="8" unique_id=1794381060]
 offset_right = 225.0
 offset_bottom = 297.0
+
+[node name="RoomTransition" parent="." instance=ExtResource("19_room_transition")]
 
 [editable path="CombatView/World/BattleWorld2D"]
 [editable path="CombatView/World/BattleWorld2D/Environment/Lighting"]

@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="Script" path="res://src/ui/run/room_transition.gd" id="1"]
+[ext_resource type="Shader" path="res://scenes/fx/pixel_room_dissolve.gdshader" id="2"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dissolve"]
+shader = ExtResource("2")
+shader_parameter/progress = 0.0
+shader_parameter/pixel_size = 24.0
+shader_parameter/design_size = Vector2(1920, 1080)
+shader_parameter/shadow_color = Color(0.018, 0.035, 0.055, 1)
+shader_parameter/edge_color = Color(0.17, 0.48, 0.62, 1)
+[node name="RoomTransition" type="Control"]
+visible = false
+process_mode = 3
+z_index = 500
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 0
+script = ExtResource("1")
+editor_description = "战斗结算至奖励／地图的像素溶解过渡。时长在脚本导出参数中调节，块尺寸和颜色在 Veil 材质中调节。"
+[node name="Veil" type="ColorRect" parent="."]
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 0
+material = SubResource("ShaderMaterial_dissolve")
+color = Color(1, 1, 1, 1)

@@ -11,8 +11,14 @@ func _init() -> void:
 
 func capture() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://artifacts/verification"))
+	root.size = Vector2i(1920, 1080)
 	var scene := MainScene.instantiate()
 	root.add_child(scene)
+	# 本脚本专测战斗表现；正式入口先显示路线图。
+	scene.get_node('TowerMap').hide()
+	scene.get_node('CombatView').show()
+	scene.get_node('CombatView').process_mode = Node.PROCESS_MODE_INHERIT
+	scene.get_node('CombatView').start_new_combat()
 	# 等待发牌和回合横幅动画稳定，截图才适合检查最终布局。
 	for _frame in 90:
 		await process_frame
@@ -27,3 +33,5 @@ func capture() -> void:
 	scene.queue_free()
 	await process_frame
 	quit(0 if error == OK else 1)
+
+

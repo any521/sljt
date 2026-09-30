@@ -31,6 +31,7 @@ const FACTION_COLORS := {
 @export var description: String = ""
 @export var upgraded: bool = false
 @export var base_card_id: String = ""
+@export var maintenance_level: int = 0
 ## 效果列表：[{ "action": "damage", "value": 6 }, ...]
 @export var effects: Array[Dictionary] = []
 
@@ -102,6 +103,25 @@ func _status_name(s: String) -> String:
 		"ritual": return "仪式"
 	return s
 
+func can_maintain_damage() -> bool:
+	if maintenance_level >= 2:
+		return false
+	for effect in effects:
+		if effect.get("action", "") in ["damage", "damage_multi"]:
+			return true
+	return false
+
+func maintain_damage() -> bool:
+	if not can_maintain_damage():
+		return false
+	for i in effects.size():
+		if effects[i].get("action", "") in ["damage", "damage_multi"]:
+			effects[i]["value"] = int(effects[i].get("value", 0)) + 3
+			break
+	maintenance_level += 1
+	build_description()
+	return true
+
 
 func duplicate_card() -> CardData:
 	var c := CardData.new()
@@ -114,5 +134,6 @@ func duplicate_card() -> CardData:
 	c.description = description
 	c.upgraded = upgraded
 	c.base_card_id = base_card_id
+	c.maintenance_level = maintenance_level
 	c.effects = effects.duplicate(true)
 	return c

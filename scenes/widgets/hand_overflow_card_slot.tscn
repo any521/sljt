@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/widgets/battle_card.tscn" id="1_card"]
+
+[node name="HandOverflowCardSlot" type="Control"]
+offset_right = 222.0
+offset_bottom = 270.0
+mouse_filter = 2
+editor_description = "超限选择中的一张候选牌。打开此场景可调整牌的缩放和槽位尺寸。"
+
+[node name="BattleCard" parent="." instance=ExtResource("1_card")]
+layout_mode = 0
+scale = Vector2(0.85, 0.85)

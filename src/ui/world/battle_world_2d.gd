@@ -65,6 +65,10 @@ var stage: Control
 var backdrop: TextureRect
 var player_actor: Node
 var companion_actor: Node
+var _shen_actor: Control
+var _song_actor: Control
+var _shen_home := Vector2.ZERO
+var _song_home := Vector2.ZERO
 var enemy_actors: Array = []
 var _hero_point := Vector2.ZERO
 var _enemy_points: Array[Vector2] = []
@@ -162,6 +166,10 @@ func _build_actors() -> void:
 		companion_actor = _spawn_sheet(ALLY_SHEET, ALLY_SHEET_COLS, ALLY_SHEET_ROWS, ALLY_CONTENT, ALLY_PX, _src_to_screen(ALLY_FEET_SRC), false)
 	if player_actor == null:
 		player_actor = _spawn_sheet(HERO_SHEET, HERO_SHEET_COLS, HERO_SHEET_ROWS, HERO_CONTENT, HERO_PX, _src_to_screen(HERO_FEET_SRC), false)
+	_shen_actor = player_actor as Control
+	_song_actor = companion_actor as Control
+	_shen_home = _shen_actor.position
+	_song_home = _song_actor.position
 	enemy_actors.clear()
 	for i in ENEMY_FEET_SRC.size():
 		var actor = stage.get_node_or_null("KinVariant%d" % (i + 1))
@@ -171,6 +179,24 @@ func _build_actors() -> void:
 	for actor in [companion_actor, player_actor] + enemy_actors:
 		if actor != null and actor.has_method("mark_base_position"):
 			actor.mark_base_position()
+
+func set_active_character(character_id: String) -> void:
+	if _shen_actor == null or _song_actor == null: return
+	var song_active := character_id == CharacterRules.SONG_MEI
+	player_actor = _song_actor if song_active else _shen_actor
+	companion_actor = _shen_actor if song_active else _song_actor
+	var shen_feet := _shen_home + Vector2(_shen_actor.size.x * 0.5, _shen_actor.size.y)
+	var song_feet := _song_home + Vector2(_song_actor.size.x * 0.5, _song_actor.size.y)
+	if song_active:
+		_song_actor.position = shen_feet - Vector2(_song_actor.size.x * 0.5, _song_actor.size.y)
+		_shen_actor.position = song_feet - Vector2(_shen_actor.size.x * 0.5, _shen_actor.size.y)
+	else:
+		_shen_actor.position = _shen_home
+		_song_actor.position = _song_home
+	player_actor.z_index = 1
+	companion_actor.z_index = 0
+	for actor in [player_actor, companion_actor]: actor.mark_base_position()
+	_compute_anchors()
 
 
 func _actor_feet(actor: Control, fallback: Vector2) -> Vector2:

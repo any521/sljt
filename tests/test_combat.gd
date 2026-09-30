@@ -51,9 +51,14 @@ func _init() -> void:
 
 	_section("战斗管理器 CombatManager")
 	test_combat_init()
+	test_retained_hand_refill()
+	test_song_mei_turn_draw()
+	test_trinket_opening_bonus()
+	test_voluntary_discard()
 	test_energy_spent()
 	test_cannot_afford()
 	test_too_many_cards()
+	test_card_draw_overflow_choice()
 	test_enemy_defeated()
 	test_victory()
 	test_defeat()
@@ -363,11 +368,66 @@ func test_combat_init() -> void:
 	_eq(cm.player_hp, 70, "初始生命 70")
 	_eq(cm.energy, 3, "初始能量 3")
 	_eq(cm.hand.size(), 5, "起手抽 5 张")
-	_eq(cm.draw_pile.size(), 5, "抽牌堆剩余 5 张（共 10 张）")
+	_eq(cm.draw_pile.size(), 7, "抽牌堆剩余 7 张（共 12 张）")
 	_eq(cm.discard_pile.size(), 0, "弃牌堆为空")
 	_eq(cm.enemies.size(), 1, "敌人数量 1")
 	_eq(_first_enemy_hp(cm), 30, "潜伏者生命 30")
 	_eq(cm.isolation.value, 0, "隔离值 0")
+
+
+func test_song_mei_turn_draw() -> void:
+	var cm := CombatManager.new(12345)
+	var foes: Array[EnemyData] = [_db_inst.get_enemy("lurker")]
+	cm.start_combat(_db_inst.build_starter_deck(), foes, -1, CharacterRules.new(CharacterRules.SONG_MEI))
+	_eq(cm.hand.size(), 5, "宋梅首回合抽 5 张")
+	var old_hand := cm.hand.duplicate()
+	_eq(cm.voluntary_discards_left, 0, "宋梅没有沈明的主动弃牌次数")
+	cm.end_turn()
+	_eq(cm.hand.size(), 5, "宋梅下一回合重新抽 5 张")
+	for card in old_hand:
+		_ok(cm.discard_pile.has(card), "宋梅未打出的旧手牌进入弃牌堆")
+		_ok(not cm.hand.has(card), "宋梅新回合不保留旧手牌")
+
+func test_trinket_opening_bonus() -> void:
+	var cm := CombatManager.new(12345)
+	var foes: Array[EnemyData] = [_db_inst.get_enemy("lurker")]
+	var items: Array[String] = [TrinketCatalog.SPARE_CAPACITOR, TrinketCatalog.CERAMIC_PLATE]
+	cm.start_combat(_db_inst.build_starter_deck(), foes, -1, CharacterRules.new(), items)
+	_eq(cm.energy, 4, "备用电容首回合多 1 点能量")
+	_eq(cm.player_block, 4, "陶瓷护板开场提供 4 点格挡")
+	cm.end_turn()
+	_eq(cm.energy, 3, "备用电容只在开场生效")
+
+func test_retained_hand_refill() -> void:
+	var cm := _new_combat(["lurker", "sentry"])
+	var retained := cm.hand.duplicate()
+	cm.end_turn()
+	_eq(cm.hand.size(), 8, "第二回合在 5 张留牌上新增 3 张")
+	_ok(retained.all(func(card): return cm.hand.has(card)), "保留的手牌实例不变")
+	_eq(cm.discard_pile.size(), 0, "未打出的牌不会进入弃牌堆")
+	_eq(cm.draw_pile.size(), 4, "第二回合从牌堆抽走 3 张")
+	var played: CardInstance = cm.hand.pop_back()
+	cm.discard_pile.append(played)
+	retained = cm.hand.duplicate()
+	cm.end_turn()
+	_eq(cm.hand.size(), 10, "第三回合在 7 张留牌上新增 3 张候选")
+	_ok(retained.all(func(card): return cm.hand.has(card)), "补牌不会替换留牌")
+	_eq(cm.overflow_discard_count(), 2, "回合抽牌超出 8 张时由玩家弃 2 张")
+	_ok(cm.discard_overflow_card(cm.hand[0]), "可选弃第一张超限牌")
+	_ok(cm.discard_overflow_card(cm.hand[0]), "可选弃第二张超限牌")
+	_eq(cm.hand.size(), 8, "结束回合前可整理到 8 张")
+
+func test_voluntary_discard() -> void:
+	var cm := _new_combat(["lurker", "sentry"])
+	var first: CardInstance = cm.hand[0]
+	var second: CardInstance = cm.hand[1]
+	_ok(cm.discard_from_hand(first), "沈明可主动弃第一张牌")
+	_ok(cm.discard_from_hand(second), "沈明可主动弃第二张牌")
+	_eq(cm.voluntary_discards_left, 0, "本回合两次主动弃牌用完")
+	_ok(not cm.discard_from_hand(cm.hand[0]), "不能主动弃第三张")
+	cm.end_turn()
+	_eq(cm.voluntary_discards_left, 2, "新回合恢复两次整理机会")
+	_ok(cm.hand.size() >= 3, "未弃掉的旧手牌保留")
 
 
 func test_energy_spent() -> void:
@@ -377,7 +437,7 @@ func test_energy_spent() -> void:
 	_eq(card.effective_cost(cm.isolation), 2, "精准打击费用 2")
 	cm.play_card(card)
 	_eq(cm.energy, 1, "打出后剩余能量 1")
-	_eq(_first_enemy_hp(cm), 30 - 12, "造成 12 伤害 → 敌人 18")
+	_eq(_first_enemy_hp(cm), 30 - 14, "造成 14 伤害 → 敌人 16")
 
 
 func test_cannot_afford() -> void:
@@ -391,15 +451,40 @@ func test_cannot_afford() -> void:
 
 func test_too_many_cards() -> void:
 	var cm := _new_combat(["lurker"])
-	# 塞满抽牌堆（20 张），手牌留空，验证抽 12 张只会拿到 10 张
+	# 抽到超限牌后先保留全部候选，交给玩家决定弃哪四张。
 	cm.hand.clear()
 	cm.draw_pile.clear()
 	cm.discard_pile.clear()
 	for i in 20:
 		cm.draw_pile.append(CardInstance.new(_db_inst.get_card("calibrate_shot")))
 	cm._draw(12)
-	_eq(cm.hand.size(), 10, "手牌上限 10，超出不抽")
-	_eq(cm.draw_pile.size(), 10, "  只抽走 10 张（12 张请求被上限截断）")
+	_eq(cm.hand.size(), 12, "抽牌效果先抽出全部 12 张候选牌")
+	_eq(cm.draw_pile.size(), 8, "抽牌堆确实移出 12 张")
+	_eq(cm.overflow_discard_count(), 4, "超出上限时需选择弃 4 张")
+	var choice: CardInstance = cm.hand[0]
+	_ok(cm.discard_overflow_card(choice), "可选择弃掉任意一张现有手牌")
+	_ok(cm.discard_pile.has(choice), "选择的牌进入弃牌堆")
+	_ok(cm.has_hand_overflow(), "只弃 1 张后仍需继续选择")
+	for i in 3:
+		_ok(cm.discard_overflow_card(cm.hand[0]), "可继续选择超限弃牌")
+	_eq(cm.hand.size(), 8, "完成选择后手牌为 8 张")
+	_ok(not cm.has_hand_overflow(), "完成选择后解除超限状态")
+
+
+func test_card_draw_overflow_choice() -> void:
+	var cm := _new_combat(["lurker"])
+	_force_hand(cm, ["logic_lock_plus", "calibrate_shot", "calibrate_shot", "calibrate_shot", "calibrate_shot", "calibrate_shot", "calibrate_shot", "calibrate_shot"])
+	var old_card: CardInstance = cm.hand[1]
+	var old_turn := cm.turn_number
+	_ok(cm.play_card(cm.hand[0]), "打出抽 2 张牌的升级卡")
+	_eq(cm.hand.size(), 9, "打出牌先离手，再抽两张形成 9 张候选")
+	_ok(cm.has_hand_overflow(), "效果抽牌后手牌可以暂时超过 8 张")
+	_ok(cm.can_play(old_card), "超过 8 张时仍可继续出牌")
+	cm.end_turn()
+	_eq(cm.turn_number, old_turn, "未整理到 8 张前不能结束回合")
+	_ok(cm.discard_overflow_card(old_card), "可弃旧手牌而保留新抽的两张")
+	_eq(cm.hand.size(), 8, "弃一张后满足回合结束要求")
+	_ok(cm.can_play(cm.hand[0]), "整理后仍可继续出牌")
 
 
 func test_enemy_defeated() -> void:
@@ -408,7 +493,7 @@ func test_enemy_defeated() -> void:
 	cm.energy = 9
 	cm.play_card(cm.hand[0])
 	cm.play_card(cm.hand[0])
-	_eq(_first_enemy_hp(cm), 6, "两次 12 伤害 → 敌人 6")
+	_eq(_first_enemy_hp(cm), 2, "两次 14 伤害 → 敌人 2")
 	cm.play_card(cm.hand[0])
 	_ok(not cm.enemies[0]["alive"], "第三次击杀 → 敌人死亡")
 
@@ -453,7 +538,7 @@ func test_assimilation_counts_as_victory() -> void:
 	cm.isolation.add(10)
 	cm.end_turn()
 	_eq(cm.phase, CombatManager.Phase.ASSIMILATED, "隔离 10 → 特殊结局 ASSIMILATED")
-	_ok(result[0], "  同化按规则上报为胜利")
+	_ok(not result[0], "  同化按规则上报为失败")
 
 
 func test_enemy_intent_cycle() -> void:
@@ -473,7 +558,7 @@ func test_enemy_block() -> void:
 	_eq(cm.enemies[0]["block"], 8, "机兵获得 8 点格挡")
 	_force_hand(cm, ["precision_strike"])
 	cm.play_card(cm.hand[0])
-	_eq(cm.enemies[0]["hp"], 42 - 4, "12 伤害 vs 8 格挡 → 掉 4 血")
+	_eq(cm.enemies[0]["hp"], 42 - 6, "14 伤害 vs 8 格挡 → 掉 6 血")
 	_eq(cm.enemies[0]["block"], 0, "  格挡被消耗完")
 
 
@@ -494,7 +579,7 @@ func test_self_damage_card() -> void:
 	_force_hand(cm, ["sacrifice_blood"])
 	cm.play_card(cm.hand[0])
 	_eq(cm.player_hp, 70 - 3, "献祭之血：自身失去 3 → 67")
-	_eq(cm.player_statuses["strength"], 2, "  获得 2 点力量")
+	_eq(cm.player_statuses["strength"], 1, "  获得 1 点力量")
 	_eq(cm.isolation.value, 1, "  隔离值 +1")
 
 
@@ -519,4 +604,4 @@ func test_predicted_damage() -> void:
 	cm.play_card(cm.hand[0])
 	_force_hand(cm, ["lacerate"])
 	var dmg2 := cm.preview_card_damage(cm.hand[0])
-	_eq(dmg2, 8, "连击1 的撕裂：floor(7 × 1.15) = 8")
+	_eq(dmg2, 10, "连击1 的撕裂：floor(9 × 1.15) = 10")

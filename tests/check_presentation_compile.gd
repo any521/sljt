@@ -1,5 +1,5 @@
 extends SceneTree
-const View = preload("res://src/ui/combat_view.gd")
+const MainScene = preload("res://scenes/main.tscn")
 
 func _init() -> void:
 	call_deferred("run")
@@ -14,20 +14,24 @@ func run() -> void:
 		push_error("PRESENTATION_COMPILE_FAILED: CardDB 未就绪")
 		quit(1)
 		return
-	var view := View.new()
-	root.add_child(view)
+	var main := MainScene.instantiate()
+	root.add_child(main)
+	var view := main.get_node("CombatView")
+	view.show()
+	view.process_mode = Node.PROCESS_MODE_INHERIT
+	view.start_new_combat()
 	await process_frame
 	await process_frame
 	if view.combat == null or view.enemy_rows.size() != 2 or view.card_views.size() != 5:
 		push_error("PRESENTATION_COMPILE_FAILED: 战斗视图初始化不完整")
-		view.queue_free()
+		main.queue_free()
 		await process_frame
 		quit(1)
 		return
 	print("PRESENTATION_COMPILE_OK")
 	view.juice.reset()
 	await create_timer(0.05, true, false, true).timeout
-	view.queue_free()
+	main.queue_free()
 	await process_frame
 	await process_frame
 	quit(0)

@@ -318,6 +318,15 @@ func exhaust_ash(position: Vector2) -> void:
 	})
 
 
+## 辅助牌消散时的冷蓝色碎光，沿逐渐上移的卡牌边缘少量释放。
+func blue_dissolve_edge(position: Vector2) -> void:
+	_emit_fx(position, "star", [CYAN, Color("b2e8ff"), Color("3a82b2")], 4, {
+		"box": Vector2(140, 8), "speed": Vector2(12, 48),
+		"drift": Vector2(0, -34), "duration": Vector2(0.25, 0.46),
+		"scale": Vector2(0.35, 0.70), "flicker": true,
+	})
+
+
 ## 出牌拖尾的一步（尖塔2 card_trail_*）：小卡影 + 微光星点，快速淡出。
 func card_trail(position: Vector2, accent: Color, trail_scale: float = 0.5) -> void:
 	_emit_fx(position, "silhouette", [accent], 1, {
@@ -497,5 +506,4 @@ func reset() -> void:
 
 func _exit_tree() -> void:
 	reset()
-
 

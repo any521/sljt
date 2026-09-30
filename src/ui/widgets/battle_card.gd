@@ -33,7 +33,7 @@ var playable := true
 enum Glow { NONE, PLAYABLE, GOLD, RED }
 var glow := Glow.NONE
 ## 当前手牌数量下的基准缩放（手牌越多越小），悬停与拖拽都基于它换算。
-var base_scale := 0.74
+var base_scale := 0.94
 ## 逐帧 Lerp 运动：目标值由战斗视图设置，驱动在战斗视图的 _process。
 var motion_active := false
 var target_position := Vector2.ZERO
@@ -168,7 +168,7 @@ func cancel_drag() -> void:
 	scale = Vector2.ONE * base_scale
 
 
-## 悬停缩放：以基准缩放为锚，保持与旧版观感一致（0.74 → 0.88）。
+## 悬停缩放：以基准缩放为锚，保持相同的视觉放大比例。
 func hover_scale() -> Vector2:
 	return Vector2.ONE * (base_scale * 1.189)
 
@@ -193,4 +193,3 @@ func _draw() -> void:
 	if lit or selected:
 		for i in range(3, 0, -1):
 			draw_rect(Rect2(Vector2.ONE * (-i * 2), size + Vector2.ONE * i * 4), Color(accent, 0.07 * (4 - i)), false, 2)
-

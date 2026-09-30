@@ -42,8 +42,14 @@ func settle(view, max_frames: int = 300) -> void:
 
 
 func run() -> void:
+	root.size = Vector2i(1920, 1080)
 	var scene := MainScene.instantiate()
 	root.add_child(scene)
+	# 本脚本专测战斗表现；正式入口先显示路线图。
+	scene.get_node('TowerMap').hide()
+	scene.get_node('CombatView').show()
+	scene.get_node('CombatView').process_mode = Node.PROCESS_MODE_INHERIT
+	scene.get_node('CombatView').start_new_combat()
 	for _frame in 100:
 		await process_frame
 	var view = scene.get_node("CombatView")
@@ -132,3 +138,5 @@ func run() -> void:
 	await process_frame
 	print("点击流程回归：%s" % ("全部通过" if failed == 0 else "%d 项失败" % failed))
 	quit(0 if failed == 0 else 1)
+
+
