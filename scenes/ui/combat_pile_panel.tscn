@@ -1,0 +1,98 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/ui/widgets/combat_pile_panel.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/widgets/card_list_option.tscn" id="2"]
+
+[sub_resource type="StyleBoxFlat" id="Style_panel"]
+bg_color = Color(0.018, 0.035, 0.055, 0.98)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.35, 0.78, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="Style_close"]
+bg_color = Color(0.04, 0.08, 0.12, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.36, 0.55, 0.68, 1)
+
+[node name="CombatPilePanel" type="Control"]
+visible = false
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 0
+z_index = 200
+script = ExtResource("1")
+option_prefab = ExtResource("2")
+
+[node name="Dim" type="ColorRect" parent="."]
+offset_right = 1920.0
+offset_bottom = 1055.0
+mouse_filter = 0
+color = Color(0.006, 0.012, 0.022, 0.76)
+
+[node name="Panel" type="Panel" parent="."]
+offset_left = 230.0
+offset_top = 55.0
+offset_right = 1690.0
+offset_bottom = 1000.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Title" type="Label" parent="Panel"]
+offset_left = 40.0
+offset_top = 24.0
+offset_right = 1120.0
+offset_bottom = 70.0
+theme_override_colors/font_color = Color(0.42, 0.78, 1, 1)
+theme_override_font_sizes/font_size = 30
+
+[node name="Subtitle" type="Label" parent="Panel"]
+offset_left = 42.0
+offset_top = 72.0
+offset_right = 1130.0
+offset_bottom = 104.0
+theme_override_colors/font_color = Color(0.55, 0.68, 0.75, 1)
+theme_override_font_sizes/font_size = 16
+
+[node name="Close" type="Button" parent="Panel"]
+offset_left = 1260.0
+offset_top = 24.0
+offset_right = 1410.0
+offset_bottom = 70.0
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("Style_close")
+theme_override_styles/hover = SubResource("Style_close")
+text = "关闭"
+
+[node name="Scroll" type="ScrollContainer" parent="Panel"]
+offset_left = 55.0
+offset_top = 120.0
+offset_right = 1405.0
+offset_bottom = 905.0
+horizontal_scroll_mode = 0
+
+[node name="Grid" type="GridContainer" parent="Panel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 4
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 18
+
+[node name="Empty" type="Label" parent="Panel"]
+visible = false
+offset_left = 400.0
+offset_top = 430.0
+offset_right = 1060.0
+offset_bottom = 490.0
+theme_override_colors/font_color = Color(0.55, 0.68, 0.75, 1)
+theme_override_font_sizes/font_size = 24
+text = "牌堆为空"
+horizontal_alignment = 1

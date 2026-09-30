@@ -26,8 +26,8 @@ signal assimilated()
 var value: int = 0
 
 
-func reset() -> void:
-	value = 0
+func reset(initial_value: int = 0) -> void:
+	value = clampi(initial_value, 0, MAX_VALUE)
 	changed.emit(value)
 
 

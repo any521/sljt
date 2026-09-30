@@ -1,7 +1,7 @@
 extends Node
 ## CardDB —— 卡池与敌池数据库（autoload 单例）
 ##
-## 当前范围：14 张基础卡 + 9 张升级版；2 普通、1 精英、1 首领。
+## 当前范围：24 张基础卡 + 23 张升级版；2 普通、1 精英、1 首领。
 ## 后续扩展：把 _build_* 换成从 res://data/*.tres 加载即可，接口不变。
 
 var cards: Dictionary = {}         # id -> CardData
@@ -41,9 +41,10 @@ func _card(
 	return c
 
 
-func _upgrade_of(base: CardData, p_name: String, p_effects: Array) -> CardData:
+func _upgrade_of(base: CardData, p_name: String, p_effects: Array, p_cost: int = -1) -> CardData:
 	var c := _card(
-		base.id + "_plus", p_name, base.faction, base.type, base.cost, p_effects, base.exhaust
+		base.id + "_plus", p_name, base.faction, base.type,
+		base.cost if p_cost < 0 else p_cost, p_effects, base.exhaust
 	)
 	c.upgraded = true
 	c.base_card_id = base.id
@@ -97,9 +98,41 @@ func _build_cards() -> void:
 		[{"action": "block", "value": 11},
 		 {"action": "isolation", "value": 2}]))
 
+	# ============================ 首批构筑测试卡（10 张）============================
+	_add(_card("phase_register", "相位寄存器", P, SKL, 2,
+		[{"action": "enable_echo_storage", "value": 3}], true))
+	_add(_card("redundant_cache", "冗余缓存", P, SKL, 1,
+		[{"action": "block", "value": 6},
+		 {"action": "store_echo", "value": 1}], true))
+	_add(_card("memory_tumor", "记忆瘤", M, SKL, 1,
+		[{"action": "block", "value": 7},
+		 {"action": "draw_if_stored", "value": 1},
+		 {"action": "isolation", "value": 1}]))
+	_add(_card("cross_calibration", "交叉校准", P, ATK, 1,
+		[{"action": "damage", "value": 5},
+		 {"action": "draw_if_extend_once", "value": 1}]))
+	_add(_card("inverse_discharge", "反相放电", P, ATK, 2,
+		[{"action": "damage", "value": 8},
+		 {"action": "release_damage", "value": 5}]))
+	_add(_card("inhibitor_injection", "抑制剂注入", P, SKL, 1,
+		[{"action": "isolation", "value": -2},
+		 {"action": "block_if_isolation", "value": 7, "threshold": 6}], true))
+	_add(_card("threshold_puncture", "阈值穿刺", M, ATK, 1,
+		[{"action": "damage_if_isolation", "value": 8, "high_value": 13, "threshold": 6},
+		 {"action": "isolation", "value": 1}]))
+	_add(_card("rehearsal_process", "预演流程", P, SKL, 0,
+		[{"action": "archive_hand_then_draw", "value": 1}], true))
+	_add(_card("sample_archive", "样本归档", M, SKL, 1,
+		[{"action": "discard", "value": 1},
+		 {"action": "draw", "value": 2},
+		 {"action": "isolation", "value": 1}]))
+	_add(_card("hard_reboot", "硬重启", P, SKL, 0,
+		[{"action": "block_on_break", "value": 2}], true))
+
 	# ============================ 中立（2 张）============================
-	_add(_card("emergency_medkit", "应急医疗", N, SKL, 1,
-		[{"action": "heal", "value": 8}], true))
+	_add(_card("emergency_medkit", "应急医疗", N, SKL, 0,
+		[{"action": "heal", "value": 5}], true))
+	cards["emergency_medkit"].purge_on_use = true
 	_add(_card("logic_lock", "逻辑锁", N, SKL, 1,
 		[{"action": "isolation", "value": -2},
 		 {"action": "draw", "value": 1}], true))
@@ -128,6 +161,34 @@ func _build_cards() -> void:
 		[{"action": "block", "value": 11}]))
 	_add(_upgrade_of(cards["symbiotic_shell"], "共生甲壳+",
 		[{"action": "block", "value": 15}, {"action": "isolation", "value": 2}]))
+	_add(_upgrade_of(cards["overclock"], "超频运转+",
+		[{"action": "gain_energy", "value": 2}, {"action": "self_damage", "value": 2}]))
+	_add(_upgrade_of(cards["parasite_spore"], "寄生孢子+",
+		[{"action": "damage", "value": 6}, {"action": "apply", "status": "poison", "value": 4}, {"action": "isolation", "value": 1}]))
+	_add(_upgrade_of(cards["abyss_gaze"], "深渊凝视+",
+		[{"action": "apply", "status": "weak", "value": 2}, {"action": "block", "value": 6}, {"action": "isolation", "value": 1}]))
+	_add(_upgrade_of(cards["sacrifice_blood"], "献祭之血+",
+		[{"action": "self_damage", "value": 2}, {"action": "gain_status", "status": "strength", "value": 2}, {"action": "isolation", "value": 1}]))
+	_add(_upgrade_of(cards["phase_register"], "相位寄存器+",
+		[{"action": "enable_echo_storage", "value": 3}], 1))
+	_add(_upgrade_of(cards["redundant_cache"], "冗余缓存+",
+		[{"action": "block", "value": 9}, {"action": "store_echo", "value": 1}]))
+	_add(_upgrade_of(cards["memory_tumor"], "记忆瘤+",
+		[{"action": "block", "value": 10}, {"action": "draw_if_stored", "value": 1}, {"action": "isolation", "value": 1}]))
+	_add(_upgrade_of(cards["cross_calibration"], "交叉校准+",
+		[{"action": "damage", "value": 8}, {"action": "draw_if_extend_once", "value": 1}]))
+	_add(_upgrade_of(cards["inverse_discharge"], "反相放电+",
+		[{"action": "damage", "value": 10}, {"action": "release_damage", "value": 6}]))
+	_add(_upgrade_of(cards["inhibitor_injection"], "抑制剂注入+",
+		[{"action": "isolation", "value": -3}, {"action": "block_if_isolation", "value": 9, "threshold": 6}]))
+	_add(_upgrade_of(cards["threshold_puncture"], "阈值穿刺+",
+		[{"action": "damage_if_isolation", "value": 11, "high_value": 16, "threshold": 6}, {"action": "isolation", "value": 1}]))
+	_add(_upgrade_of(cards["rehearsal_process"], "预演流程+",
+		[{"action": "archive_hand_then_draw", "value": 2}]))
+	_add(_upgrade_of(cards["sample_archive"], "样本归档+",
+		[{"action": "discard", "value": 1}, {"action": "draw", "value": 3}, {"action": "isolation", "value": 1}]))
+	_add(_upgrade_of(cards["hard_reboot"], "硬重启+",
+		[{"action": "block_on_break", "value": 3}]))
 
 
 func _add(c: CardData) -> void:
@@ -146,6 +207,9 @@ func _build_pools() -> void:
 		"precision_strike", "overclock", "framework_scan", "insulation",
 		"parasite_spore", "abyss_gaze", "flesh_reshape", "symbiotic_shell",
 		"emergency_medkit",
+		"phase_register", "redundant_cache", "memory_tumor", "cross_calibration",
+		"inverse_discharge", "inhibitor_injection", "threshold_puncture",
+		"rehearsal_process", "sample_archive", "hard_reboot",
 	]
 
 

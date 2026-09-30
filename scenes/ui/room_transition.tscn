@@ -16,7 +16,7 @@ offset_right = 1920.0
 offset_bottom = 1080.0
 mouse_filter = 0
 script = ExtResource("1")
-editor_description = "战斗结算至奖励／地图的像素溶解过渡。时长在脚本导出参数中调节，块尺寸和颜色在 Veil 材质中调节。"
+editor_description = "选角、房间、战斗与地图之间共用的像素溶解过渡。时长在脚本导出参数中调节，块尺寸和颜色在 Veil 材质中调节。"
 [node name="Veil" type="ColorRect" parent="."]
 offset_right = 1920.0
 offset_bottom = 1080.0

@@ -67,13 +67,21 @@ static func _shuffle(items: Array, rng: RandomNumberGenerator) -> void:
 		items[j] = tmp
 
 static func _avoid_crossing(rows: Array[Array], floor_index: int, lane: int, target: int) -> int:
+	# Between two adjacent floors, target lanes must keep the same left-to-right
+	# order as their source lanes. Compute the complete legal interval instead
+	# of correcting against one edge at a time; one correction must not create
+	# a new crossing with an edge inspected earlier.
+	var lower_bound := 0
+	var upper_bound := LANES - 1
 	for other_lane in LANES:
 		if other_lane == lane: continue
 		for edge in rows[floor_index][other_lane].next:
 			if edge.floor != floor_index + 1: continue
-			if (lane < other_lane and target > edge.lane) or (lane > other_lane and target < edge.lane):
-				target = edge.lane
-	return target
+			if other_lane < lane:
+				lower_bound = maxi(lower_bound, edge.lane)
+			else:
+				upper_bound = mini(upper_bound, edge.lane)
+	return clampi(target, lower_bound, upper_bound)
 
 static func _add_edge(rows: Array[Array], from_floor: int, from_lane: int, to_floor: int, to_lane: int) -> void:
 	var connection := {"floor": to_floor, "lane": to_lane}

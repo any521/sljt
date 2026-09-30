@@ -82,6 +82,14 @@ func setup(world: Control) -> void:
 	_bind_screen_fx()
 
 
+## 将任意 Control 的全局画布坐标转换为 PresentationFX 的局部坐标。
+## 卡牌位于 Cards/Hand，而粒子位于 Juice/PresentationFX；不能直接拿卡牌 home 坐标发射。
+func effects_position_from_global(global_position: Vector2) -> Vector2:
+	if _overlay == null:
+		return global_position
+	return _overlay.get_global_transform_with_canvas().affine_inverse() * global_position
+
+
 ## 对象池：脚本只负责"预制体 → instantiate → add_child"，结构在预制体里。
 func _spawn_pool(target: Array, prefab: PackedScene, count: int, parent: Node) -> void:
 	if prefab == null:
@@ -506,4 +514,3 @@ func reset() -> void:
 
 func _exit_tree() -> void:
 	reset()
-

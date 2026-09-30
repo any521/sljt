@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dvagmtmhd33md"]
+[gd_scene load_steps=22 format=3 uid="uid://dvagmtmhd33md"]
 
 [ext_resource type="Script" uid="uid://bitfqh33obcxl" path="res://src/ui/main.gd" id="1_main"]
 [ext_resource type="Script" uid="uid://dadl03fcnu2v" path="res://src/ui/combat_view.gd" id="2_combat"]
@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/character_select_panel.tscn" id="18_character_select"]
 [ext_resource type="PackedScene" path="res://scenes/ui/room_transition.tscn" id="19_room_transition"]
 [ext_resource type="PackedScene" path="res://scenes/widgets/world_status_bar.tscn" id="20_world_status"]
+[ext_resource type="PackedScene" path="res://scenes/ui/exchange_panel.tscn" id="21_exchange"]
 
 [node name="Main" type="Node2D" unique_id=781703828]
 script = ExtResource("1_main")
@@ -29,6 +30,8 @@ script = ExtResource("1_main")
 [node name="RoomChoicePanel" parent="." instance=ExtResource("16_choice")]
 
 [node name="CardListPanel" parent="." instance=ExtResource("17_card_list")]
+
+[node name="ExchangePanel" parent="." instance=ExtResource("21_exchange")]
 
 [node name="CharacterSelectPanel" parent="." instance=ExtResource("18_character_select")]
 

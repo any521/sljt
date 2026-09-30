@@ -1,42 +1,58 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 [ext_resource type="Script" path="res://src/ui/run/room_choice_panel.gd" id="1"]
 [ext_resource type="Theme" path="res://assets/themes/pixel_font_theme.tres" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/widgets/card_list_option.tscn" id="3"]
 [node name="RoomChoicePanel" type="Control"]
 visible = false
 offset_right = 1920.0
 offset_bottom = 1080.0
 theme = ExtResource("2")
 script = ExtResource("1")
+card_option_prefab = ExtResource("3")
 [node name="Background" type="ColorRect" parent="."]
 offset_right = 1920.0
 offset_bottom = 1080.0
 color = Color(0.035, 0.07, 0.11, 1)
 [node name="Panel" type="Panel" parent="."]
-offset_left = 435.0
-offset_top = 190.0
-offset_right = 1485.0
-offset_bottom = 890.0
+offset_left = 180.0
+offset_top = 70.0
+offset_right = 1740.0
+offset_bottom = 1010.0
 [node name="Title" type="Label" parent="Panel"]
 offset_left = 80.0
-offset_top = 35.0
-offset_right = 970.0
-offset_bottom = 90.0
+offset_top = 28.0
+offset_right = 1480.0
+offset_bottom = 82.0
 theme_override_font_sizes/font_size = 38
 horizontal_alignment = 1
 text = "房间"
 [node name="Body" type="Label" parent="Panel"]
 offset_left = 80.0
-offset_top = 105.0
-offset_right = 970.0
-offset_bottom = 205.0
+offset_left = 100.0
+offset_top = 92.0
+offset_right = 1460.0
+offset_bottom = 180.0
 theme_override_font_sizes/font_size = 23
 horizontal_alignment = 1
 autowrap_mode = 3
+[node name="CardPreviewScroll" type="ScrollContainer" parent="Panel"]
+visible = false
+offset_left = 70.0
+offset_top = 190.0
+offset_right = 1490.0
+offset_bottom = 570.0
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 0
+[node name="CardPreviewList" type="HBoxContainer" parent="Panel/CardPreviewScroll"]
+custom_minimum_size = Vector2(1420, 0)
+layout_mode = 2
+theme_override_constants/separation = 22
+alignment = 1
 [node name="Choices" type="VBoxContainer" parent="Panel"]
-offset_left = 100.0
-offset_top = 220.0
-offset_right = 950.0
-offset_bottom = 640.0
+offset_left = 180.0
+offset_top = 210.0
+offset_right = 1380.0
+offset_bottom = 870.0
 theme_override_constants/separation = 16
 [node name="Choice0" type="Button" parent="Panel/Choices"]
 layout_mode = 2

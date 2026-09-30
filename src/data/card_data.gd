@@ -11,8 +11,8 @@ enum Faction { PROTOCOL, MUTATION, NEUTRAL }
 enum Type { ATTACK, SKILL, POWER }
 
 const FACTION_NAMES := {
-	Faction.PROTOCOL: "规程",
-	Faction.MUTATION: "变异",
+	Faction.PROTOCOL: "工程",
+	Faction.MUTATION: "异化",
 	Faction.NEUTRAL: "中立",
 }
 
@@ -28,6 +28,8 @@ const FACTION_COLORS := {
 @export var type: Type = Type.ATTACK
 @export var cost: int = 1
 @export var exhaust: bool = false
+## 一次性：打出后除进入本场消耗堆外，还会在战斗结算时从本局牌组永久移除。
+@export var purge_on_use: bool = false
 @export var description: String = ""
 @export var upgraded: bool = false
 @export var base_card_id: String = ""
@@ -47,7 +49,7 @@ func faction_color() -> Color:
 func type_name() -> String:
 	match type:
 		Type.ATTACK: return "攻击"
-		Type.SKILL: return "策略"
+		Type.SKILL: return "技能"
 		Type.POWER: return "心法"
 	return "?"
 
@@ -87,6 +89,24 @@ func build_description() -> String:
 				parts.append("若已触发回声，改为 %d 点伤害" % v)
 			"discard":
 				parts.append("弃 %d 张牌" % v)
+			"enable_echo_storage":
+				parts.append("每回合结束寄存最多 %d 层回声" % v)
+			"store_echo":
+				parts.append("若回声至少为 2，寄存 %d 层回声" % v)
+			"draw_if_stored":
+				parts.append("若本回合恢复过寄存，抽 %d 张牌" % v)
+			"draw_if_extend_once":
+				parts.append("若延续回声，抽 %d 张牌（每回合一次）" % v)
+			"release_damage":
+				parts.append("释放回声：每层造成 %d 点伤害" % v)
+			"block_if_isolation":
+				parts.append("若此前隔离至少 %d，获得 %d 点格挡" % [e.get("threshold", 0), v])
+			"damage_if_isolation":
+				parts.append("造成 %d 点伤害；隔离至少 %d 时改为 %d" % [v, e.get("threshold", 0), e.get("high_value", v)])
+			"archive_hand_then_draw":
+				parts.append("暂存 1 张手牌，抽 %d 张牌" % v)
+			"block_on_break":
+				parts.append("若造成断链，每层旧回声获得 %d 点格挡" % v)
 	if exhaust:
 		parts.append("消耗")
 	description = "。".join(parts) + ("。" if parts.size() > 0 else "")
@@ -131,6 +151,7 @@ func duplicate_card() -> CardData:
 	c.type = type
 	c.cost = cost
 	c.exhaust = exhaust
+	c.purge_on_use = purge_on_use
 	c.description = description
 	c.upgraded = upgraded
 	c.base_card_id = base_card_id

@@ -1,0 +1,96 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/ui/run/exchange_option.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/widgets/card_list_option.tscn" id="2"]
+
+[sub_resource type="StyleBoxFlat" id="StyleRow"]
+bg_color = Color(0.035, 0.055, 0.075, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.16, 0.42, 0.58, 0.8)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleHover"]
+bg_color = Color(0.04, 0.12, 0.16, 0.98)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.31, 0.78, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="ExchangeOption" type="Button"]
+custom_minimum_size = Vector2(1380, 354)
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("StyleRow")
+theme_override_styles/hover = SubResource("StyleHover")
+theme_override_styles/pressed = SubResource("StyleHover")
+script = ExtResource("1")
+
+[node name="SourceHeading" type="Label" parent="."]
+offset_left = 170.0
+offset_top = 8.0
+offset_right = 452.0
+offset_bottom = 36.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.55, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "当前牌组 · 交出"
+horizontal_alignment = 1
+
+[node name="TargetHeading" type="Label" parent="."]
+offset_left = 928.0
+offset_top = 8.0
+offset_right = 1210.0
+offset_bottom = 36.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.55, 0.95, 0.76, 1)
+theme_override_font_sizes/font_size = 18
+text = "交换终端 · 获得"
+horizontal_alignment = 1
+
+[node name="SourceCard" parent="." instance=ExtResource("2")]
+layout_mode = 0
+offset_left = 170.0
+offset_top = 7.0
+offset_right = 452.0
+offset_bottom = 349.0
+
+[node name="TargetCard" parent="." instance=ExtResource("2")]
+layout_mode = 0
+offset_left = 928.0
+offset_top = 7.0
+offset_right = 1210.0
+offset_bottom = 349.0
+
+[node name="Arrow" type="Label" parent="."]
+offset_left = 542.0
+offset_top = 128.0
+offset_right = 838.0
+offset_bottom = 210.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.4, 0.84, 1, 1)
+theme_override_font_sizes/font_size = 42
+text = "━━━━  ▶"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Unavailable" type="Label" parent="."]
+visible = false
+offset_left = 516.0
+offset_top = 220.0
+offset_right = 864.0
+offset_bottom = 268.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.48, 0.52, 1)
+theme_override_font_sizes/font_size = 18
+text = "牌组中没有可交出的牌"
+horizontal_alignment = 1

@@ -23,6 +23,7 @@ var _frame: TextureRect
 var _dim: ColorRect
 var _name: Label
 var _cost: Label
+var _cost_modifier: Label
 var _description: Label
 var _badge: Label
 var _type: Label
@@ -53,6 +54,7 @@ func setup(manager: CombatManager, card: CardInstance, index: int) -> void:
 	# 缺节点直接报错，不做动态构建兜底 —— 那样会生成编辑器里看不到、改不了的节点。
 	_frame = get_node_or_null("Frame") as TextureRect
 	_cost = get_node_or_null("Cost") as Label
+	_cost_modifier = get_node_or_null("CostModifier") as Label
 	_name = get_node_or_null("Name") as Label
 	_index = get_node_or_null("Index") as Label
 	_art = get_node_or_null("Art") as TextureRect
@@ -90,7 +92,18 @@ func _on_gui_input(event: InputEvent) -> void:
 func refresh(target: int = -1) -> void:
 	playable = combat.can_play(instance)
 	_name.text = instance.display_name()
-	_cost.text = str(instance.effective_cost(combat.isolation))
+	var effective_cost := instance.effective_cost(combat.isolation)
+	_cost.text = str(effective_cost)
+	var cost_reasons: PackedStringArray = []
+	if instance.corrupted:
+		cost_reasons.append("异化−1")
+	if combat.isolation.cost_modifier_for(instance.data.faction) < 0:
+		cost_reasons.append("阈值−1")
+	if _cost_modifier != null:
+		_cost_modifier.text = " ".join(cost_reasons)
+		_cost_modifier.visible = not cost_reasons.is_empty()
+	_cost.add_theme_color_override("font_color", Color("ff91d8") if instance.corrupted else (Color("6bc7ff") if not cost_reasons.is_empty() else Color("ffdc82")))
+	_cost.tooltip_text = "原始费用 %d%s" % [instance.data.cost, "\n" + "；".join(cost_reasons) + "，当前费用 %d" % effective_cost if not cost_reasons.is_empty() else ""]
 	_type.text = "%s / %s%s" % [instance.data.faction_name() if not instance.corrupted else "异化", instance.data.type_name(), " · 已异化" if instance.corrupted else ""]
 	_type.add_theme_color_override("font_color", COLORS[instance.faction()])
 	var lines: PackedStringArray = []
@@ -107,6 +120,15 @@ func refresh(target: int = -1) -> void:
 			"gain_energy": lines.append("获得 %d 能量" % n)
 			"gain_status": lines.append("%s +%d" % [CardData.new()._status_name(effect.get("status", "")), n])
 			"isolation": lines.append("隔离值 %+d" % n)
+			"enable_echo_storage": lines.append("每回合寄存最多 %d 回声" % n)
+			"store_echo": lines.append("回声≥2：寄存 %d" % n)
+			"draw_if_stored": lines.append("恢复寄存时抽 %d" % n)
+			"draw_if_extend_once": lines.append("延续时抽 %d（每回合一次）" % n)
+			"release_damage": lines.append("释放：每层造成 %d 伤害" % n)
+			"block_if_isolation": lines.append("此前隔离≥%d：获得 %d 格挡" % [effect.get("threshold", 0), n])
+			"damage_if_isolation": lines.append("造成 %d／%d 伤害（隔离≥%d）" % [n, effect.get("high_value", n), effect.get("threshold", 0)])
+			"archive_hand_then_draw": lines.append("暂存 1 张，抽 %d" % n)
+			"block_on_break": lines.append("断链：每层旧回声 %d 格挡" % n)
 	_description.text = "\n".join(lines)
 	# 描述窗只有 60px 高，行数多时必须缩字号，否则文字会溢出卡框
 	_description.add_theme_font_size_override("font_size", 12 if lines.size() >= 4 else (14 if lines.size() >= 3 else 16))
@@ -132,7 +154,9 @@ func refresh(target: int = -1) -> void:
 		glow = Glow.PLAYABLE
 	if _dim != null:
 		_dim.visible = not playable
-	tooltip_text = "%s\n%s\n%s" % [instance.display_name(), instance.data.description, "拖向敌人，或点击选牌后点击目标。右键取消。"]
+	var cost_tip := "\n费用变化：%s，当前为 %d。" % ["；".join(cost_reasons), effective_cost] if not cost_reasons.is_empty() else ""
+	var corruption_tip := "\n已异化：本场费用−1，打出时额外增加1点隔离。" if instance.corrupted else ""
+	tooltip_text = "%s\n%s%s%s\n%s" % [instance.display_name(), instance.data.description, cost_tip, corruption_tip, "拖向敌人，或点击选牌后点击目标。右键取消。"]
 	queue_redraw()
 
 

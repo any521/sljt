@@ -1,7 +1,7 @@
 {
   "cell": 32,
   "cols": 8,
-  "rows": 3,
+  "rows": 4,
   "frames": {
 	"force_shield_plus": {"x": 192, "y": 32},
 	"calibrate_shot": {"x": 0, "y": 0},
@@ -21,6 +21,18 @@
 	"abyss_gaze": {"x": 0, "y": 32},
 	"force_shield": {"x": 64, "y": 0},
 	"precision_strike": {"x": 32, "y": 0},
-	"emergency_medkit": {"x": 64, "y": 32}
+	"emergency_medkit": {"x": 64, "y": 32},
+	"phase_register": {"x": 128, "y": 32},
+	"redundant_cache": {"x": 96, "y": 64},
+	"memory_tumor": {"x": 128, "y": 64},
+	"cross_calibration": {"x": 160, "y": 64},
+	"inverse_discharge": {"x": 192, "y": 64},
+	"inhibitor_injection": {"x": 224, "y": 64},
+	"threshold_puncture": {"x": 0, "y": 96},
+	"rehearsal_process": {"x": 32, "y": 96},
+	"sample_archive": {"x": 64, "y": 96},
+	"hard_reboot": {"x": 96, "y": 96},
+	"insulation": {"x": 128, "y": 96},
+	"symbiotic_shell": {"x": 160, "y": 96}
   }
 }

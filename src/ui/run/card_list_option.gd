@@ -8,6 +8,8 @@ func configure(card: CardData, caption: String) -> void:
 	(display.get_node("Art") as TextureRect).texture = get_node("/root/CardArt").get_card_texture(card.id)
 	(display.get_node("Name") as Label).text = card.display_name
 	(display.get_node("Cost") as Label).text = str(card.cost)
+	var cost_modifier := display.get_node_or_null("CostModifier") as Label
+	if cost_modifier != null: cost_modifier.hide()
 	(display.get_node("Index") as Label).text = ""
 	(display.get_node("Type") as Label).text = "%s / %s" % [card.faction_name(), card.type_name()]
 	var description := display.get_node("Description") as Label

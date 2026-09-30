@@ -1,9 +1,34 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/widgets/crew_status_panel.tscn" id="1_crew"]
 [ext_resource type="Texture2D" path="res://assets/art/characters/shen_mingyan/portrait_shen_ming.png" id="2_shen"]
 [ext_resource type="Texture2D" path="res://assets/art/characters/song_mei/portrait_512.png" id="3_song"]
 [ext_resource type="PackedScene" path="res://scenes/widgets/discard_drop_zone.tscn" id="4_discard"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/navigation_map.svg" id="5_nav"]
+
+[sub_resource type="StyleBoxFlat" id="Style_nav_normal"]
+bg_color = Color(0.027, 0.075, 0.105, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.25, 0.62, 0.78, 0.8)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="Style_nav_hover"]
+bg_color = Color(0.04, 0.2, 0.27, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.46, 0.88, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [sub_resource type="AtlasTexture" id="Atlas_shen_portrait"]
 atlas = ExtResource("2_shen")
@@ -32,6 +57,20 @@ offset_right = 1920.0
 offset_bottom = 1055.0
 mouse_filter = 2
 editor_description = "舰船名称、回合、记录、规则和设置。"
+
+[node name="MapButton" type="Button" parent="TopBar"]
+layout_mode = 0
+offset_left = 1640.0
+offset_top = 23.0
+offset_right = 1682.0
+offset_bottom = 61.0
+tooltip_text = "查看当前航路"
+mouse_default_cursor_shape = 2
+icon = ExtResource("5_nav")
+icon_max_width = 27
+theme_override_styles/normal = SubResource("Style_nav_normal")
+theme_override_styles/hover = SubResource("Style_nav_hover")
+theme_override_styles/pressed = SubResource("Style_nav_hover")
 
 [node name="PlayerStatus" type="Control" parent="."]
 layout_mode = 0

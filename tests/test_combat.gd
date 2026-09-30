@@ -63,13 +63,17 @@ func _init() -> void:
 	test_victory()
 	test_defeat()
 	test_poison_defeat_before_draw()
-	test_assimilation_counts_as_victory()
+	test_assimilation_end_turn_grace()
 	test_enemy_intent_cycle()
 	test_enemy_block()
 	test_poison_ticks()
 	test_self_damage_card()
 	test_corrupted_card_isolation()
 	test_predicted_damage()
+	test_upgrade_coverage()
+	test_echo_storage_card()
+	test_threshold_puncture()
+	test_single_use_medkit()
 
 	print("")
 	print("═══════════════════════════════════════════")
@@ -531,14 +535,27 @@ func test_poison_defeat_before_draw() -> void:
 	_ok(cm.is_over(), "  不会进入可操作的尸体回合")
 
 
-func test_assimilation_counts_as_victory() -> void:
+func test_assimilation_end_turn_grace() -> void:
 	var cm := _new_combat(["lurker"])
 	var result := [false]
 	cm.combat_ended.connect(func(victory): result[0] = victory)
 	cm.isolation.add(10)
+	_eq(cm.phase, CombatManager.Phase.PLAYER_TURN, "隔离到 10 后仍保留玩家行动阶段")
+	_ok(not cm.is_over(), "  临界回合内仍可使用降隔离卡")
+	var lock := CardInstance.new(_db_inst.get_card("logic_lock"), 93001)
+	cm.hand.append(lock)
+	_ok(cm.play_card(lock), "  隔离 10 时可以打出逻辑锁")
+	_eq(cm.isolation.value, 8, "  逻辑锁把隔离从 10 降到 8")
 	cm.end_turn()
-	_eq(cm.phase, CombatManager.Phase.ASSIMILATED, "隔离 10 → 特殊结局 ASSIMILATED")
-	_ok(not result[0], "  同化按规则上报为失败")
+	_ok(cm.phase != CombatManager.Phase.ASSIMILATED, "  成功降低后结束回合不会同化")
+
+	cm = _new_combat(["lurker"])
+	result = [true]
+	cm.combat_ended.connect(func(victory): result[0] = victory)
+	cm.isolation.add(10)
+	cm.end_turn()
+	_eq(cm.phase, CombatManager.Phase.ASSIMILATED, "隔离 10 且结束回合 → ASSIMILATED")
+	_ok(not result[0], "  回合结束时同化按失败上报")
 
 
 func test_enemy_intent_cycle() -> void:
@@ -605,3 +622,47 @@ func test_predicted_damage() -> void:
 	_force_hand(cm, ["lacerate"])
 	var dmg2 := cm.preview_card_damage(cm.hand[0])
 	_eq(dmg2, 10, "连击1 的撕裂：floor(9 × 1.15) = 10")
+
+
+func test_upgrade_coverage() -> void:
+	var base_count := 0
+	for id in _db_inst.cards:
+		var card: CardData = _db_inst.cards[id]
+		if card.upgraded:
+			continue
+		base_count += 1
+		if id == "emergency_medkit":
+			_ok(not _db_inst.cards.has(id + "_plus"), "一次性应急医疗不可升级")
+		else:
+			_ok(_db_inst.cards.has(id + "_plus"), "%s 有升级数据" % card.display_name)
+	_eq(base_count, 24, "当前共 24 张基础卡")
+
+
+func test_echo_storage_card() -> void:
+	var cm := _new_combat(["sentry"])
+	_force_hand(cm, ["phase_register"])
+	cm.echo.streak = 3
+	cm.echo.last_faction = CardData.Faction.MUTATION
+	_ok(cm.play_card(cm.hand[0]), "相位寄存器可以打出")
+	_eq(cm.echo.streak, 4, "相位寄存器延续到回声 4")
+	cm.end_turn()
+	_eq(cm.echo.streak, 3, "下回合恢复寄存上限 3 层")
+	_eq(cm.echo.last_faction, CardData.Faction.PROTOCOL, "同时恢复末相")
+
+
+func test_threshold_puncture() -> void:
+	var cm := _new_combat(["sentry"])
+	_force_hand(cm, ["threshold_puncture"])
+	cm.isolation.reset(6)
+	cm.play_card(cm.hand[0])
+	_eq(cm.enemies[0]["hp"], 42 - 13, "阈值穿刺在隔离 6 时造成 13 伤害")
+	_eq(cm.isolation.value, 7, "阈值穿刺随后隔离 +1")
+
+
+func test_single_use_medkit() -> void:
+	var cm := _new_combat(["sentry"])
+	_force_hand(cm, ["emergency_medkit"])
+	cm.player_hp = 50
+	cm.play_card(cm.hand[0])
+	_eq(cm.player_hp, 55, "应急医疗恢复 5 生命")
+	_eq(cm.purged_card_ids, ["emergency_medkit"], "应急医疗登记为本局永久移除")

@@ -7,6 +7,8 @@ var seed_value: int
 var rows: Array[Array]
 var deck: Array[CardData] = []
 var hp := CombatManager.PLAYER_MAX_HP
+## 隔离值在整次爬塔中持续；只有创建新 RunState 时从 0 开始。
+var isolation := 0
 var gold := 60
 var battles_won := 0
 var remove_count := 0
@@ -45,6 +47,13 @@ func heal(amount: int) -> void:
 
 func add_card(card: CardData) -> void:
 	deck.append(card.duplicate_card())
+
+func purge_used_cards(card_ids: Array[String]) -> void:
+	for card_id in card_ids:
+		for i in deck.size():
+			if deck[i].id == card_id:
+				deck.remove_at(i)
+				break
 
 func spend_gold(amount: int) -> bool:
 	if amount < 0 or gold < amount: return false

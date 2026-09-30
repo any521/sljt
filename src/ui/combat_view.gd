@@ -1,5 +1,6 @@
 extends Control
 signal battle_finished(victory: bool)
+signal map_requested
 ## Battle presentation. The synchronous rules remain in CombatManager; this view
 ## snapshots its signals and replays them in order, without exposing future state.
 const CardWidget = preload("res://src/ui/widgets/battle_card.gd")
@@ -98,6 +99,7 @@ var _run_hp := -1
 var _run_battle := false
 var _run_rules := CharacterRules.new()
 var _run_trinkets: Array[String] = []
+var _run_isolation := 0
 var _pending_end_turn := false
 var juice: Node
 var world: Control
@@ -174,11 +176,12 @@ var _player_world_bar: Panel
 var _draw_button: Button
 var _discard_button: Button
 var _settings_button: Button
+var _map_button: Button
 var _log_panel: Panel
 var _log_label: RichTextLabel
 var _settings_panel: Panel
 var _help_panel: Panel
-var _pile_panel: Panel
+var _pile_panel
 var _result_overlay: Control
 var _result_label: Label
 var _result_body: Label
@@ -202,6 +205,9 @@ func _ready() -> void:
 		theme = PixelFontTheme
 	_bind_scene_layers()
 	_build_ui()
+	_map_button = get_node_or_null("HUD/TopBar/MapButton") as Button
+	if _map_button != null:
+		_map_button.pressed.connect(func(): map_requested.emit())
 	_discard_drop_zone = get_node_or_null("HUD/TurnControls/DiscardDropZone") as Panel
 	if juice_prefab == null:
 		push_error("CombatView 缺少 juice 预制体（请在 main.tscn 检查器里拖拽赋值）")
@@ -389,7 +395,7 @@ func _build_ui() -> void:
 	# Thin bridge-status rail. The central stage stays unobstructed.
 	var rail := _panel(_hud_section("TopBar"), Vector2(26, 16), Vector2(1868, 54), Color("2b536e"), false)
 	_label(rail, "ARKHAM // 07 生物实验舱", Vector2(20, 12), Vector2(370, 30), 17, CYAN)
-	_turn_label = _label(rail, "你的回合 / 01", Vector2(1452, 10), Vector2(200, 32), 19, GOLD)
+	_turn_label = _label(rail, "你的回合 / 01", Vector2(1432, 10), Vector2(175, 32), 19, GOLD)
 	_turn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_button(rail, "记录", Vector2(1665, 7), Vector2(76, 38), func(): _log_panel.visible = not _log_panel.visible, DIM)
 	_button(rail, "规则", Vector2(1746, 7), Vector2(72, 38), func(): _help_panel.visible = not _help_panel.visible, DIM)
@@ -668,12 +674,11 @@ func _build_popups() -> void:
 	_help_panel.mouse_filter = MOUSE_FILTER_STOP
 	_help_panel.hide()
 	_label(_help_panel, "回声协议 / 战斗指南", Vector2(28, 22), Vector2(590, 43), 27, CYAN)
-	var help := _label(_help_panel, "交替规程（青）与变异（品红），累积回声。\n首张牌建立基准；中立牌保持当前回声。\n\n连击      1      2      3      4      5+\n倍率  ×1.15  ×1.30  ×1.50  ×1.75  ×2.00\n3 连击后，攻击额外抽牌。回合结束连击归零。\n\n变异会推高隔离值：3 / 6 / 8 / 10 触发阈值。\n达到 10 时同化，结束战斗。\n\n按住卡牌拖动箭头选择目标，原卡留在手牌区。\n点击卡牌可在中央放大阅读；辅助牌可拖向战场。\n1–0 选牌，Tab 切换目标，Enter 确认。\n空格结束回合；右键取消；R 重新开始。", Vector2(28, 81), Vector2(600, 368), 19)
+	var help := _label(_help_panel, "交替规程（青）与变异（品红），累积回声。\n首张牌建立基准；中立牌保持当前回声。\n\n连击      1      2      3      4      5+\n倍率  ×1.15  ×1.30  ×1.50  ×1.75  ×2.00\n3 连击后，攻击额外抽牌。回合结束连击归零。\n\n变异会推高隔离值：3 / 6 / 8 / 10 触发阈值。\n达到 10 后仍可继续出牌自救；结束回合时仍为 10 才会同化。\n\n按住卡牌拖动箭头选择目标，原卡留在手牌区。\n点击卡牌可在中央放大阅读；辅助牌可拖向战场。\n1–0 选牌，Tab 切换目标，Enter 确认。\n空格结束回合；右键取消；R 重新开始。", Vector2(28, 81), Vector2(600, 368), 19)
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_pile_panel = _panel(menus, Vector2(540, 150), Vector2(840, 750), CYAN)
-	_pile_panel.z_index = 200
-	_pile_panel.mouse_filter = MOUSE_FILTER_STOP
-	_pile_panel.hide()
+	_pile_panel = menus.get_node_or_null("CombatPilePanel") as Control
+	if _pile_panel == null:
+		push_error("battle_overlays.tscn 缺少 CombatPilePanel")
 	_result_overlay = Control.new()
 	_result_overlay.size = size
 	_result_overlay.z_index = 220
@@ -767,19 +772,7 @@ func _apply_motion_settings() -> void:
 
 func _show_pile(title: String, pile: Array[CardInstance]) -> void:
 	_cancel_selection()
-	for child in _pile_panel.get_children():
-		child.queue_free()
-	_label(_pile_panel, title + " / %d 张" % pile.size(), Vector2(32, 23), Vector2(630, 44), 29, CYAN)
-	_button(_pile_panel, "关闭", Vector2(675, 24), Vector2(124, 42), func(): _pile_panel.hide(), DIM)
-	var names: PackedStringArray = []
-	for card in pile:
-		names.append("%s   ·   %s   ·   %d 能量" % [card.display_name(), card.data.faction_name(), card.effective_cost(combat.isolation)])
-	# Draw pile order is deliberately hidden, as in a physical shuffled deck.
-	if title == "抽牌堆":
-		names.sort()
-	var content := _label(_pile_panel, "\n\n".join(names) if not names.is_empty() else "牌堆为空", Vector2(35, 90), Vector2(765, 620), 21)
-	content.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_pile_panel.show()
+	_pile_panel.present(title, pile, combat, title == "抽牌堆")
 
 func _take_snapshot() -> Dictionary:
 	var enemies: Array[Dictionary] = []
@@ -869,7 +862,7 @@ func start_new_combat() -> void:
 	var enemies: Array[EnemyData] = [card_db.get_enemy("lurker"), card_db.get_enemy("sentry")]
 	if _run_battle:
 		enemies = _run_enemies
-		combat.start_combat(_run_deck, enemies, _run_hp, _run_rules, _run_trinkets)
+		combat.start_combat(_run_deck, enemies, _run_hp, _run_rules, _run_trinkets, _run_isolation)
 	else:
 		combat.start_combat(card_db.build_starter_deck(), enemies)
 	_snapshot = _take_snapshot()
@@ -890,13 +883,14 @@ func start_new_combat() -> void:
 	else:
 		_log("宋梅·常规抽牌：每回合抽 5 张；回合结束时未打出的牌进入弃牌堆。")
 
-func begin_run_battle(deck: Array[CardData], enemies: Array[EnemyData], hp: int, rules: CharacterRules = null, trinkets: Array[String] = []) -> void:
+func begin_run_battle(deck: Array[CardData], enemies: Array[EnemyData], hp: int, rules: CharacterRules = null, trinkets: Array[String] = [], initial_isolation: int = 0) -> void:
 	_run_battle = true
 	_run_deck = deck
 	_run_enemies = enemies
 	_run_hp = hp
 	_run_rules = rules if rules != null else CharacterRules.new()
 	_run_trinkets = trinkets.duplicate()
+	_run_isolation = initial_isolation
 	start_new_combat()
 
 func restart() -> void:
@@ -1622,7 +1616,8 @@ func _on_card_hovered(view: Control, entered: bool) -> void:
 		juice.play_sound("hover")
 		# 金光牌 = 回声可续，悬停时撒一层闪烁微光（对应原版 card_sparkles_vfx）
 		if view.glow == CardWidget.Glow.GOLD:
-			juice.sparkle(view.home + view.size * 0.5, GOLD, 5)
+			var global_center := view.get_global_transform_with_canvas() * (view.size * 0.5)
+			juice.sparkle(juice.effects_position_from_global(global_center), GOLD, 5)
 	else:
 		view.lit = false
 		if view != _selected:
@@ -2115,13 +2110,22 @@ func _present_damage(event: Dictionary) -> void:
 	var blocked: int = event.blocked
 	var large: bool = amount >= 12 or int(event.snapshot.streak) >= 4 or (index >= 0 and not event.snapshot.enemies[index].alive)
 	if target_is_player:
+		var sound_case := _player_hit_sound_case(amount, blocked)
 		if amount > 0:
 			hero.hit(large, juice.enabled("reduce_flashes"), juice.enabled("enemy_animations"))
 			juice.impact(_hero_point, large, 1)
 			juice.vignette(RED, 0.85 if large else 0.55)
 			juice.number(_hero_point + Vector2(0, -125), "-%d" % amount, RED, large)
-			juice.play_sound("player_hit")
+			if sound_case == "block_break":
+				# 破盾穿透：先听到高频护盾碎裂，再接一记较低的肉身冲击。
+				juice.block_spark(_hero_point)
+				juice.play_sound("shield", 1.28)
+				juice.play_sound("player_hit", 0.82)
+			else:
+				# 无格挡直接受击：保留单一、厚重的肉身命中音。
+				juice.play_sound("player_hit", 1.0)
 		else:
+			# 格挡未破：只有清晰的护盾共鸣，不混入受伤音。
 			juice.shield(_hero_point)
 			juice.block_spark(_hero_point)
 			juice.number(_hero_point + Vector2(25, -105), "格挡 %d" % blocked, CYAN)
@@ -2138,6 +2142,13 @@ func _present_damage(event: Dictionary) -> void:
 		_log("你 → %s：[color=#ffdc82]%d[/color]%s" % [event.target, amount, "（格挡 %d）" % blocked if blocked > 0 else ""])
 	_apply_snapshot(event.snapshot)
 	await get_tree().create_timer(0.11 if large else 0.07, true, false, true).timeout
+
+func _player_hit_sound_case(amount: int, blocked: int) -> String:
+	if amount <= 0 and blocked > 0:
+		return "block_hold"
+	if amount > 0 and blocked > 0:
+		return "block_break"
+	return "direct_hit"
 
 func _enemy_attack_motion(index: int) -> void:
 	if not juice.enabled("enemy_animations"):

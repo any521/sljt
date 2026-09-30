@@ -5,6 +5,7 @@ extends Node2D
 @onready var map_view: Control = $TowerMap
 @onready var choice_panel: Control = $RoomChoicePanel
 @onready var card_list_panel: Control = $CardListPanel
+@onready var exchange_panel: Control = $ExchangePanel
 @onready var character_panel: Control = $CharacterSelectPanel
 @onready var room_transition: Control = $RoomTransition
 
@@ -17,13 +18,21 @@ var _exchange_offers: Array[String] = []
 var _shop_offer_ids: Array[String] = []
 var _event_id := ""
 var _transitioning := false
+var _battle_map_open := false
+
+const SHOP_CARD_PRICE := 90
+const SHOP_REMOVE_BASE := 75
+const SHOP_REMOVE_STEP := 30
 
 func _ready() -> void:
 	map_view.room_chosen.connect(_on_room_chosen)
+	map_view.close_requested.connect(_close_battle_map)
 	choice_panel.choice_made.connect(_on_choice)
+	exchange_panel.choice_made.connect(_on_choice)
 	card_list_panel.option_chosen.connect(_on_card_list_choice)
 	character_panel.character_chosen.connect(start_new_run)
 	view.battle_finished.connect(_on_battle_finished)
+	view.map_requested.connect(_open_battle_map)
 	_show_character_select()
 
 func _show_character_select() -> void:
@@ -31,26 +40,75 @@ func _show_character_select() -> void:
 	view.hide()
 	view.process_mode = Node.PROCESS_MODE_DISABLED
 	map_view.hide()
+	map_view.z_index = 0
+	_battle_map_open = false
 	choice_panel.hide()
 	card_list_panel.hide()
+	exchange_panel.hide()
 	character_panel.show()
 
 func start_new_run(character_id: String = CharacterRules.SHEN_MING) -> void:
+	if _transitioning:
+		return
 	_rng.randomize()
 	run = RunState.new(_rng.randi(), _db.build_starter_deck(), _db, character_id)
 	_rng.seed = run.seed_value
+	_transitioning = true
+	await room_transition.cover()
 	character_panel.hide()
 	_show_map()
+	await room_transition.reveal()
+	_transitioning = false
 
 func _show_map() -> void:
 	_mode = "map"
+	_battle_map_open = false
 	view.hide()
 	view.process_mode = Node.PROCESS_MODE_DISABLED
 	choice_panel.hide()
 	card_list_panel.hide()
+	exchange_panel.hide()
 	character_panel.hide()
-	map_view.show_run(run)
+	map_view.z_index = 0
+	map_view.show_run(run, false)
 	map_view.show()
+
+
+func _return_to_map() -> void:
+	if _transitioning:
+		return
+	_transitioning = true
+	await room_transition.cover()
+	_show_map()
+	await room_transition.reveal()
+	_transitioning = false
+
+
+func _open_battle_map() -> void:
+	if _mode != "battle" or _transitioning or _battle_map_open:
+		return
+	_transitioning = true
+	await room_transition.cover()
+	_battle_map_open = true
+	view.process_mode = Node.PROCESS_MODE_DISABLED
+	map_view.z_index = 200
+	map_view.show_run(run, true)
+	map_view.show()
+	await room_transition.reveal()
+	_transitioning = false
+
+
+func _close_battle_map() -> void:
+	if _mode != "battle" or _transitioning or not _battle_map_open:
+		return
+	_transitioning = true
+	await room_transition.cover()
+	map_view.hide()
+	map_view.z_index = 0
+	_battle_map_open = false
+	view.process_mode = Node.PROCESS_MODE_INHERIT
+	await room_transition.reveal()
+	_transitioning = false
 
 func _on_room_chosen(floor_index: int, lane: int) -> void:
 	if _mode != "map": return
@@ -61,7 +119,7 @@ func _on_room_chosen(floor_index: int, lane: int) -> void:
 		"battle", "elite", "boss": _enter_battle(room.type)
 		"medicine":
 			_mode = "medicine"
-			choice_panel.present("药品柜", "在废弃舱室里发现了尚可使用的医疗用品。", ["使用药剂：恢复 10 点生命", "收下应急医疗卡", "离开"], [], ["room:medicine", "emergency_medkit", ""])
+			choice_panel.present("药品柜", "在废弃舱室里发现了尚可使用的医疗用品。", ["使用药剂：恢复 8 点生命", "收下应急医疗卡", "离开"], [], ["room:medicine", "emergency_medkit", ""])
 		"tools":
 			_mode = "tools"
 			choice_panel.present("工具间", "工作台上还有几件能用的工具。", ["调整一张卡牌（升级）", "取走绝缘屏障卡", "离开"], [], ["room:tools", "insulation", ""])
@@ -80,6 +138,9 @@ func _on_room_chosen(floor_index: int, lane: int) -> void:
 
 func _enter_battle(kind: String) -> void:
 	_mode = "battle"
+	_battle_map_open = false
+	map_view.hide()
+	map_view.z_index = 0
 	var enemies: Array[EnemyData] = []
 	match kind:
 		"boss": enemies.append(_db.get_enemy("lab_core"))
@@ -87,9 +148,10 @@ func _enter_battle(kind: String) -> void:
 		_:
 			enemies.append(_db.get_enemy("lurker" if _rng.randi_range(0, 1) == 0 else "sentry"))
 	choice_panel.hide()
+	exchange_panel.hide()
 	view.show()
 	view.process_mode = Node.PROCESS_MODE_INHERIT
-	view.begin_run_battle(run.deck, enemies, run.hp, run.character_rules, run.trinkets)
+	view.begin_run_battle(run.deck, enemies, run.hp, run.character_rules, run.trinkets, run.isolation)
 
 func _on_battle_finished(victory: bool) -> void:
 	if _mode != "battle" or _transitioning: return
@@ -103,6 +165,8 @@ func _on_battle_finished(victory: bool) -> void:
 
 func _settle_battle(victory: bool) -> void:
 	run.hp = view.combat.player_hp
+	run.isolation = view.combat.isolation.value
+	run.purge_used_cards(view.combat.purged_card_ids)
 	view.hide()
 	view.process_mode = Node.PROCESS_MODE_DISABLED
 	if not victory:
@@ -144,25 +208,30 @@ func _show_exchange() -> void:
 	var pool: Array[String] = _db.reward_pool.duplicate()
 	for i in 2:
 		_exchange_offers.append(pool.pop_at(_rng.randi_range(0, pool.size() - 1)))
-	var has_shot := run.deck.any(func(card): return card.id == "calibrate_shot")
-	var has_shield := run.deck.any(func(card): return card.id == "force_shield")
-	choice_panel.present("交换台", "终端列出了本次交易的确切卡牌。", [
-		"校准射击 → %s" % _db.get_card(_exchange_offers[0]).display_name,
-		"力场护罩 → %s" % _db.get_card(_exchange_offers[1]).display_name,
-		"离开",
-	], [not has_shot, not has_shield, false])
+	var shot_count := 0
+	var shield_count := 0
+	for card in run.deck:
+		if card.id == "calibrate_shot": shot_count += 1
+		elif card.id == "force_shield": shield_count += 1
+	choice_panel.hide()
+	card_list_panel.hide()
+	var sources: Array[CardData] = [_db.get_card("calibrate_shot"), _db.get_card("force_shield")]
+	var targets: Array[CardData] = [_db.get_card(_exchange_offers[0]), _db.get_card(_exchange_offers[1])]
+	var owned_counts: Array[int] = [shot_count, shield_count]
+	exchange_panel.present(sources, targets, owned_counts)
 
 func _show_shop(refresh_stock: bool = false) -> void:
 	_mode = "shop"
 	card_list_panel.hide()
+	exchange_panel.hide()
 	if refresh_stock:
 		_shop_offer_ids.clear()
 		var pool: Array[String] = _db.reward_pool.duplicate()
 		while _shop_offer_ids.size() < 3 and not pool.is_empty():
 			_shop_offer_ids.append(pool.pop_at(_rng.randi_range(0, pool.size() - 1)))
 	choice_panel.present("小周的补给终端", "库存有限。当前金币 %d；战斗可获得金币。" % run.gold,
-		["购买卡牌 · 每张 55 金币", "移除一张卡 · %d 金币" % (60 + run.remove_count * 25), "购买饰品 · 永久生效", "离开商店"],
-		[_shop_offer_ids.is_empty() or run.gold < 55, run.gold < 60 + run.remove_count * 25 or run.deck.size() <= 1, false, false],
+		["购买卡牌 · 每张 %d 金币" % SHOP_CARD_PRICE, "移除一张卡 · %d 金币" % (SHOP_REMOVE_BASE + run.remove_count * SHOP_REMOVE_STEP), "购买饰品 · 永久生效", "离开商店"],
+		[_shop_offer_ids.is_empty() or run.gold < SHOP_CARD_PRICE, run.gold < SHOP_REMOVE_BASE + run.remove_count * SHOP_REMOVE_STEP or run.deck.size() <= 1, false, false],
 		["room:shop", "room:tools", "trinket:spare_capacitor", ""])
 
 func _show_shop_cards() -> void:
@@ -174,7 +243,7 @@ func _show_shop_cards() -> void:
 	for id in _shop_offer_ids:
 		indexes.append(offered.size())
 		offered.append(_db.get_card(id))
-		captions.append("购买 · 55 金币")
+		captions.append("购买 · %d 金币" % SHOP_CARD_PRICE)
 	card_list_panel.present("购买卡牌", "当前金币 %d · 选择卡牌加入卡组" % run.gold, offered, indexes, "返回商店", captions)
 
 func _show_shop_remove() -> void:
@@ -184,7 +253,7 @@ func _show_shop_remove() -> void:
 	var captions: Array[String] = []
 	for i in run.deck.size():
 		indexes.append(i)
-		captions.append("移除 · %d 金币" % (60 + run.remove_count * 25))
+		captions.append("移除 · %d 金币" % (SHOP_REMOVE_BASE + run.remove_count * SHOP_REMOVE_STEP))
 	card_list_panel.present("移除卡牌", "从卡组永久移除一张牌。当前金币 %d。" % run.gold, run.deck, indexes, "返回商店", captions)
 
 func _show_shop_trinkets() -> void:
@@ -236,7 +305,7 @@ func _resolve_event(index: int) -> void:
 				run.lose_hp_percent(0.08)
 				run.gold += 45
 			elif index == 1 and run.spend_gold(25): run.heal(12)
-	_show_map()
+	await _return_to_map()
 
 func _show_upgrade_choices() -> void:
 	_mode = "upgrade"
@@ -267,37 +336,37 @@ func _on_card_list_choice(index: int) -> void:
 	match _mode:
 		"upgrade":
 			if index >= 0: run.upgrade_at(index)
-			_show_map()
+			await _return_to_map()
 		"maintain_card":
 			if index >= 0: run.maintain_damage_at(index)
-			_show_map()
+			await _return_to_map()
 		"reward":
 			if index >= 0 and index < _reward_ids.size(): run.add_card(_db.get_card(_reward_ids[index]))
-			_show_map()
+			await _return_to_map()
 		"shop_cards":
-			if index >= 0 and index < _shop_offer_ids.size() and run.spend_gold(55):
+			if index >= 0 and index < _shop_offer_ids.size() and run.spend_gold(SHOP_CARD_PRICE):
 				run.add_card(_db.get_card(_shop_offer_ids[index]))
 				_shop_offer_ids.remove_at(index)
 			_show_shop()
 		"shop_remove":
-			var price := 60 + run.remove_count * 25
+			var price := SHOP_REMOVE_BASE + run.remove_count * SHOP_REMOVE_STEP
 			if index >= 0 and run.gold >= price and run.remove_card_at(index): run.spend_gold(price)
 			_show_shop()
 
 func _on_choice(index: int) -> void:
 	match _mode:
 		"medicine":
-			if index == 0: run.heal(10)
+			if index == 0: run.heal(8)
 			elif index == 1: run.add_card(_db.get_card("emergency_medkit"))
-			_show_map()
+			await _return_to_map()
 		"tools":
 			if index == 0: _show_upgrade_choices()
 			else:
 				if index == 1: run.add_card(_db.get_card("insulation"))
-				_show_map()
+				await _return_to_map()
 		"maintenance":
 			if index == 0: _show_maintenance_choices()
-			else: _show_map()
+			else: await _return_to_map()
 		"exchange":
 			if index < 2:
 				var old_id := "calibrate_shot" if index == 0 else "force_shield"
@@ -306,13 +375,13 @@ func _on_choice(index: int) -> void:
 						run.deck.remove_at(i)
 						run.add_card(_db.get_card(_exchange_offers[index]))
 						break
-			_show_map()
+			await _return_to_map()
 		"shop":
 			match index:
 				0: _show_shop_cards()
 				1: _show_shop_remove()
 				2: _show_shop_trinkets()
-				_: _show_map()
+				_: await _return_to_map()
 		"shop_trinkets":
 			if index >= 0 and index < TrinketCatalog.IDS.size():
 				var id: String = TrinketCatalog.IDS[index]
@@ -323,9 +392,9 @@ func _on_choice(index: int) -> void:
 			if index == 1: _show_upgrade_choices()
 			else:
 				if index == 0: run.heal(14)
-				_show_map()
-		"event": _resolve_event(index)
-		"no_cards": _show_map()
+				await _return_to_map()
+		"event": await _resolve_event(index)
+		"no_cards": await _return_to_map()
 		"defeat", "complete": _show_character_select()
 
 func _unhandled_input(event: InputEvent) -> void:

@@ -25,6 +25,14 @@ func run() -> void:
 	await process_frame
 	check(view.combat != null, "战斗视图创建 CombatManager")
 	check(view.card_views.size() == 5, "起手创建 5 个卡牌视图")
+	check(view._player_hit_sound_case(0, 5) == "block_hold", "格挡未破使用护盾承受音效")
+	check(view._player_hit_sound_case(2, 5) == "block_break", "破盾并扣血使用破盾穿透音效")
+	check(view._player_hit_sound_case(6, 0) == "direct_hit", "无格挡扣血使用直接受击音效")
+	view._show_pile("抽牌堆", view.combat.draw_pile)
+	var pile_grid := view.get_node("Overlays/Menus/CombatPilePanel/Panel/Scroll/Grid") as GridContainer
+	check(view._pile_panel.visible and pile_grid.get_child_count() == view.combat.draw_pile.size(), "抽牌堆以完整卡面逐张展示全部卡牌")
+	check(pile_grid.get_child_count() == 0 or pile_grid.get_child(0).get_node_or_null("BattleCard/Art") != null, "牌堆条目复用完整卡牌预制体")
+	view._pile_panel.hide()
 	view.pointer_override = view.card_views[0].global_position + view.card_views[0].size * 0.5
 	view._on_card_pressed(view.card_views[0])
 	view._finish_drag()
@@ -145,6 +153,36 @@ func run() -> void:
 	view.combat.isolation.add(3)
 	check(threshold_events == [3], "隔离阈值从逻辑层正确转发表现层")
 	check(view.combat.hand.any(func(card): return card.corrupted), "阈值 3 仍执行手牌异化规则")
+	var corrupted_view: Control = null
+	for card_view in view.card_views:
+		if card_view.instance.corrupted:
+			corrupted_view = card_view
+			break
+	if corrupted_view != null:
+		corrupted_view.refresh()
+		var modifier_label := corrupted_view.get_node("CostModifier") as Label
+		check(modifier_label.visible and modifier_label.text.contains("异化−1"), "异化降费在费用旁直接标明原因")
+	else:
+		check(false, "找到异化卡牌视图")
+	var glow_view: Control = null
+	for card_view in view.card_views:
+		if card_view.instance.faction() == CardData.Faction.PROTOCOL and not card_view.instance.corrupted:
+			glow_view = card_view
+			break
+	if glow_view != null:
+		view.combat.echo.last_faction = CardData.Faction.MUTATION
+		glow_view.refresh()
+		var global_center := glow_view.get_global_transform_with_canvas() * (glow_view.size * 0.5)
+		var fx_center: Vector2 = view.juice.effects_position_from_global(global_center)
+		view._on_card_hovered(glow_view, true)
+		await process_frame
+		var nearby_sparkle: bool = view.juice._particles.any(func(particle):
+			return particle.visible and particle.kind == "star" and particle.position.distance_to(fx_center) < 180.0)
+		check(nearby_sparkle, "悬停微光使用卡牌全局坐标并出现在卡牌附近")
+		view._on_card_hovered(glow_view, false)
+		view.juice.reset()
+	else:
+		check(false, "找到可延续回声的工程卡视图")
 	for card_view in view.card_views:
 		card_view.modulate.a = 0.25
 		card_view._dim.visible = true

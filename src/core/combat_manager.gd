@@ -58,6 +58,8 @@ var draw_pile: Array[CardInstance] = []
 var hand: Array[CardInstance] = []
 var discard_pile: Array[CardInstance] = []
 var exhaust_pile: Array[CardInstance] = []
+## 本场已经使用的一次性卡牌 id；由 RunState 在战斗结算时从本局牌组删除。
+var purged_card_ids: Array[String] = []
 
 # 敌人
 var enemies: Array[Dictionary] = []
@@ -65,6 +67,13 @@ var enemies: Array[Dictionary] = []
 var _rng := RandomNumberGenerator.new()
 var _uid_counter: int = 0
 var _cards_played_this_turn: int = 0
+var _current_play_context: Dictionary = {}
+var _extended_draw_used := false
+var _echo_storage_limit := 0
+var _pending_echo_store_limit := 0
+var _stored_echo := 0
+var _stored_faction := -1
+var _turn_started_with_stored := false
 ## 当前出牌的目标敌人索引（-1 = 自动选第一个存活敌人）
 var _current_target: int = -1
 
@@ -90,7 +99,8 @@ func start_combat(
 	enemy_data_list: Array[EnemyData],
 	p_player_hp: int = -1,
 	p_character_rules: CharacterRules = null,
-	p_trinkets: Array[String] = []
+	p_trinkets: Array[String] = [],
+	p_initial_isolation: int = 0
 ) -> void:
 	if p_character_rules != null:
 		character_rules = p_character_rules
@@ -99,14 +109,24 @@ func start_combat(
 	player_statuses.clear()
 	turn_number = 0
 	_cards_played_this_turn = 0
+	_current_play_context.clear()
+	_extended_draw_used = false
+	_echo_storage_limit = 0
+	_pending_echo_store_limit = 0
+	_stored_echo = 0
+	_stored_faction = -1
+	_turn_started_with_stored = false
 	voluntary_discards_left = character_rules.voluntary_discard_limit
 	echo.reset_combat()
-	isolation.reset()
+	# 隔离属于本次爬塔的持续状态。这里只载入进入战斗前的数值，
+	# 不重复触发已经跨越过的阈值事件。
+	isolation.reset(p_initial_isolation)
 
 	draw_pile.clear()
 	hand.clear()
 	discard_pile.clear()
 	exhaust_pile.clear()
+	purged_card_ids.clear()
 
 	for cd in deck:
 		_uid_counter += 1
@@ -153,7 +173,15 @@ func _start_player_turn() -> void:
 
 	player_block = 0
 	_cards_played_this_turn = 0
+	_extended_draw_used = false
 	voluntary_discards_left = character_rules.voluntary_discard_limit
+	_turn_started_with_stored = _stored_echo > 0 and _stored_faction >= 0
+	if _turn_started_with_stored:
+		echo.streak = _stored_echo
+		echo.last_faction = _stored_faction
+		emit_signal("echo_changed", echo.streak, echo.current_multiplier())
+	_stored_echo = 0
+	_stored_faction = -1
 
 	if isolation.has_stage_6():
 		_add_status(player_statuses, "strength", 1)
@@ -196,6 +224,13 @@ func end_turn() -> void:
 		return
 	if has_hand_overflow():
 		return
+	# 隔离 10 是“本回合最后的自救窗口”，不是触碰瞬间死亡。
+	# 玩家按下结束回合时仍未降下来，才正式完成同化判定。
+	if isolation.is_assimilated():
+		phase = Phase.ASSIMILATED
+		emit_signal("combat_ended", false)
+		emit_signal("whisper", "「同化。」")
+		return
 
 	# 阈值 6 代价：每回合结束失去 2 点生命
 	if isolation.has_stage_6():
@@ -207,6 +242,11 @@ func end_turn() -> void:
 			discard_pile.append(card)
 		hand.clear()
 
+	var store_limit := maxi(_echo_storage_limit, _pending_echo_store_limit)
+	if store_limit > 0 and echo.streak >= 2 and echo.last_faction >= 0:
+		_stored_echo = mini(store_limit, echo.streak)
+		_stored_faction = echo.last_faction
+	_pending_echo_store_limit = 0
 	echo.reset_turn()
 	emit_signal("echo_changed", echo.streak, echo.current_multiplier())
 	_emit_piles()
@@ -243,6 +283,11 @@ func play_card(instance: CardInstance, target_index: int = -1) -> bool:
 	emit_signal("card_played", instance)
 
 	# ★ 回声结算（必须在效果之前，让本张牌吃到本次连击的倍率）
+	_current_play_context = {
+		"verdict": echo.predict(instance.faction()),
+		"old_streak": echo.streak,
+		"isolation_before": isolation.value,
+	}
 	echo.on_card_played(instance.faction())
 	emit_signal("echo_changed", echo.streak, echo.current_multiplier())
 
@@ -254,6 +299,8 @@ func play_card(instance: CardInstance, target_index: int = -1) -> bool:
 	_resolve_effects(instance)
 
 	# 归位
+	if instance.data.purge_on_use:
+		purged_card_ids.append(instance.data.id)
 	if instance.data.exhaust:
 		exhaust_pile.append(instance)
 	else:
@@ -262,6 +309,7 @@ func play_card(instance: CardInstance, target_index: int = -1) -> bool:
 	_emit_piles()
 	emit_signal("hand_changed")
 	_check_combat_over()
+	_current_play_context.clear()
 	return true
 
 
@@ -303,6 +351,46 @@ func _resolve_effects(instance: CardInstance) -> void:
 						break
 					discard_pile.append(hand.pop_back())
 				emit_signal("hand_changed")
+			"enable_echo_storage":
+				_echo_storage_limit = maxi(_echo_storage_limit, value)
+			"store_echo":
+				if echo.streak >= 2:
+					_pending_echo_store_limit = maxi(_pending_echo_store_limit, value)
+			"draw_if_stored":
+				if _turn_started_with_stored:
+					_draw(value)
+			"draw_if_extend_once":
+				if _current_play_context.get("verdict", "") == "extend" and not _extended_draw_used:
+					_extended_draw_used = true
+					_draw(value)
+			"release_damage":
+				var released := echo.streak
+				if released > 0:
+					_deal_player_attack(value * released)
+				echo.reset_turn()
+				emit_signal("echo_changed", echo.streak, echo.current_multiplier())
+			"block_if_isolation":
+				if int(_current_play_context.get("isolation_before", isolation.value)) >= int(e.get("threshold", 0)):
+					player_block += value
+					emit_signal("player_stats_changed")
+			"damage_if_isolation":
+				var base_damage := value
+				if int(_current_play_context.get("isolation_before", isolation.value)) >= int(e.get("threshold", 0)):
+					base_damage = int(e.get("high_value", value))
+				_deal_player_attack(base_damage)
+			"archive_hand_then_draw":
+				# 暂存最右侧手牌，先从原抽牌堆抽牌，再把它放到抽牌堆顶。
+				# 当前阶段保持纯数值原型；后续接卡牌选择器时只需替换选牌来源。
+				var archived: CardInstance = hand.pop_back() if not hand.is_empty() else null
+				_draw(value)
+				if archived != null:
+					draw_pile.append(archived)
+					emit_signal("hand_changed")
+					_emit_piles()
+			"block_on_break":
+				if _current_play_context.get("verdict", "") == "break":
+					player_block += int(_current_play_context.get("old_streak", 0)) * value
+					emit_signal("player_stats_changed")
 			_:
 				push_warning("[CombatManager] 未知效果: %s" % action)
 
@@ -602,12 +690,6 @@ func _alive_enemies() -> Array[int]:
 
 
 func _check_combat_over() -> bool:
-	if isolation.is_assimilated():
-		phase = Phase.ASSIMILATED
-		# 隔离值达到 10 是同化死亡，不能领取地图战斗奖励。
-		emit_signal("combat_ended", false)
-		emit_signal("whisper", "「同化。」")
-		return true
 	if player_hp <= 0:
 		phase = Phase.DEFEAT
 		emit_signal("combat_ended", false)
@@ -665,4 +747,11 @@ func preview_card_damage(instance: CardInstance, target_index: int = -1) -> int:
 			total += DamagePipeline.compute(
 				e.get("value", 0), player_statuses, enemy_statuses, mult
 			) * int(e.get("times", 1))
+		elif e.get("action", "") == "damage_if_isolation":
+			var base_damage := int(e.get("value", 0))
+			if isolation.value >= int(e.get("threshold", 0)):
+				base_damage = int(e.get("high_value", base_damage))
+			total += DamagePipeline.compute(base_damage, player_statuses, enemy_statuses, mult)
+		elif e.get("action", "") == "release_damage":
+			total += DamagePipeline.compute(int(e.get("value", 0)) * echo.streak_if_played(instance.faction()), player_statuses, enemy_statuses, mult)
 	return total

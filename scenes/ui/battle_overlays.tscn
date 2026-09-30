@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/ui/hand_overflow_picker.tscn" id="1_overflow"]
+[ext_resource type="PackedScene" path="res://scenes/ui/combat_pile_panel.tscn" id="2_pile"]
 
 [node name="Overlays" type="Control"]
 layout_mode = 3
@@ -34,6 +35,8 @@ z_index = 180
 editor_description = "战斗记录、规则、牌堆和表现设置。"
 
 [node name="HandOverflowPicker" parent="Menus" instance=ExtResource("1_overflow")]
+
+[node name="CombatPilePanel" parent="Menus" instance=ExtResource("2_pile")]
 
 [node name="Results" type="Control" parent="."]
 layout_mode = 0
